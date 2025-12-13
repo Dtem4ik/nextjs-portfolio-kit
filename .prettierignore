@@ -1,0 +1,19 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+package-lock.json
+
+# Build outputs
+.next
+out
+build
+dist
+
+# Misc
+*.log
+.DS_Store
+coverage
+
+# Environment
+.env*
+!.env.example
