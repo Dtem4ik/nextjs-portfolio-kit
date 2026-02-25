@@ -5556,33 +5556,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  headers-polyfill@4.0.3: {}
-
-  hermes-estree@0.25.1: {}
-
-  human-signals@8.0.1: {}
-
-  iconv-lite@0.7.1:
-    dependencies:
-      safer-buffer: 2.1.2
-
-  hono@4.12.2: {}
-
-  http-errors@2.0.1:
-    dependencies:
-      depd: 2.0.0
-      inherits: 2.0.4
-      setprototypeof: 1.2.0
-      statuses: 2.0.2
-      toidentifier: 1.0.1
-
-  https-proxy-agent@7.0.6:
-    dependencies:
-      agent-base: 7.1.4
-      debug: 4.4.3
-    transitivePeerDependencies:
-      - supports-color
-
   human-signals@2.1.0: {}
 
   human-signals@8.0.1: {}
