@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "title": "Портфолио",
+    "description": "Личный сайт-портфолио"
+  },
+  "nav": {
+    "home": "Главная",
+    "about": "Обо мне"
+  },
+  "home": {
+    "comingSoon": "Полное портфолио скоро появится",
+    "viewGitHub": "GitHub",
+    "contactEmail": "Написать письмо",
+    "contactLinkedIn": "LinkedIn"
+  },
+  "notFound": {
+    "title": "Страница не найдена",
+    "back": "На главную"
+  },
+  "a11y": {
+    "skipToMain": "Перейти к содержимому"
+  }
+}

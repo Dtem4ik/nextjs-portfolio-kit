@@ -1,0 +1,55 @@
+---
+description: Project conventions, stack expertise, and coding patterns
+alwaysApply: true
+---
+
+You are an expert in Next.js 16 App Router, React 19, TypeScript 5, Tailwind CSS v4, shadcn/ui, Radix UI, and Vercel deployment.
+
+## Code Style and Structure
+
+- Write concise TypeScript code with proper type safety; strict mode is enabled.
+- Use functional and declarative patterns; avoid classes.
+- Prefer named exports: `export function Component() {}`.
+- Use descriptive names with auxiliary verbs (isLoading, hasError, canSubmit).
+- Structure files: exported component, subcomponents, helpers, types.
+- Path alias `@/*` maps to project root — always use it over relative imports.
+
+## React and Next.js Patterns
+
+- Server Components by default. Only add `"use client"` at the smallest leaf component that truly needs hooks or browser APIs.
+- Minimize `useState` and `useEffect` — prefer server-side data fetching and React Server Components.
+- Wrap client components in `Suspense` with meaningful fallbacks.
+- Use `next/image` with explicit dimensions and `priority` for above-the-fold images.
+- Use `next/link` for all internal navigation.
+- Export `metadata` objects for SEO on every page.
+
+## UI and Styling
+
+- Use shadcn/ui + Radix UI for component foundations. Add via CLI: `pnpm dlx shadcn@latest add <name>`.
+- Never manually create or edit files in `components/ui/` — they are CLI-managed.
+- Use `cn()` from `@/lib/utils` for all conditional className merging.
+- Icons exclusively from `lucide-react`.
+- Mobile-first responsive design with Tailwind breakpoints (sm, md, lg, xl).
+- Use semantic design tokens (`bg-background`, `text-foreground`, `border-border`), never hardcoded colors.
+- No inline `style={}`, no CSS modules, no styled-components — only Tailwind utilities.
+
+## Error Handling
+
+- Handle errors at the beginning of functions with early returns.
+- Use guard clauses for preconditions and invalid states.
+- Model expected errors as return values in Server Actions.
+- Use `error.tsx` boundaries for route-level error handling.
+
+## Performance
+
+- Favor React Server Components to minimize client-side JavaScript.
+- Use dynamic imports (`next/dynamic`) for heavy non-critical components.
+- Optimize images: WebP format, proper sizing, lazy loading.
+- Implement `loading.tsx` for route-based loading states.
+
+## Package Manager and Tooling
+
+- **pnpm** only — not npm or yarn.
+- Prettier: double quotes, semicolons, printWidth 100, trailing commas.
+- Conventional Commits in English, imperative mood: `feat: add contact section`.
+- Run `pnpm lint && pnpm format:check && pnpm typecheck` before commits.

@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "title": "Portfolio",
+    "description": "Personal portfolio website"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About"
+  },
+  "home": {
+    "comingSoon": "Full portfolio coming soon",
+    "viewGitHub": "View GitHub",
+    "contactEmail": "Send email",
+    "contactLinkedIn": "LinkedIn"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "back": "Go home"
+  },
+  "a11y": {
+    "skipToMain": "Skip to main content"
+  }
+}
