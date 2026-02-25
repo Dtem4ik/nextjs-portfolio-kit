@@ -1,5 +1,5 @@
 import "server-only";
-import { locales, type Locale } from "@/lib/i18n";
+import { portfolioConfig, type Locale } from "@/portfolio.config";
 
 export type { Locale };
 
@@ -11,6 +11,6 @@ const dictionaries: Record<Locale, () => Promise<Dictionary>> = {
 };
 
 export const hasLocale = (locale: string): locale is Locale =>
-  (locales as readonly string[]).includes(locale);
+  (portfolioConfig.locale.supported as readonly string[]).includes(locale);
 
 export const getDictionary = async (locale: Locale): Promise<Dictionary> => dictionaries[locale]();
