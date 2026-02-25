@@ -47,8 +47,8 @@ _A modern starter kit for building portfolios_
 
 ### Prerequisites
 
-- Node.js 20 or higher
-- pnpm, npm, yarn
+- Node.js 22 or higher
+- pnpm (recommended), npm, or yarn
 
 ### Installation
 
@@ -112,12 +112,16 @@ nextjs-portfolio-kit/
 ├── app/                    # Next.js App Router
 │   ├── layout.tsx         # Root layout
 │   ├── page.tsx           # Home page
-│   └── globals.css        # Global styles
+│   └── globals.css        # Global styles + Tailwind v4 config
+├── components/            # Shared components
+│   └── ui/                # shadcn/ui primitives (CLI-managed)
+├── lib/                   # Utilities
+│   └── utils.ts           # cn() helper
 ├── public/                # Static files
+├── components.json        # shadcn/ui configuration
 ├── eslint.config.mjs      # ESLint configuration
 ├── next.config.ts         # Next.js configuration
 ├── postcss.config.mjs     # PostCSS configuration
-├── tailwind.config.ts     # Tailwind configuration
 ├── tsconfig.json          # TypeScript configuration
 └── package.json           # Dependencies and scripts
 ```
