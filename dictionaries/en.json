@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "title": "Portfolio",
+    "description": "My personal portfolio website"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About"
+  },
+  "home": {
+    "title": "To get started, edit the page.tsx file.",
+    "description": "Looking for a starting point or more instructions? Head over to Templates or the Learning center.",
+    "deployNow": "Deploy Now",
+    "documentation": "Documentation"
+  }
+}
