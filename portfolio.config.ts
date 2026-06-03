@@ -2,7 +2,7 @@
 // All metadata, SEO, structured data, OG image, sitemap and page content derive from this config.
 
 /** Full name — used in page titles, JSON-LD Person schema, OG image and header */
-const name = "Artyom Dugijiyev";
+const name = "Artyom Friedman";
 
 /** Job title per locale — used in hero section, OG image and JSON-LD jobTitle */
 const title = {
