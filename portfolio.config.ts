@@ -15,8 +15,8 @@ const title = {
  * Used in the hero section, meta description, OG description and JSON-LD description.
  */
 const bio = {
-  en: "Senior Frontend Engineer with 7+ years of experience building production-grade web apps and internal platforms. I specialize in React and Next.js, focusing on architecture, performance, and clean UI systems. Open to strong product-driven teams where frontend quality and engineering excellence truly matter.",
-  ru: "Senior Frontend Engineer с 7+ годами опыта в создании production-приложений и внутренних платформ. Специализируюсь на React и Next.js: архитектура, производительность, чистые UI-системы. Открыт к сильным product-командам, где качество фронтенда действительно важно.",
+  en: "Senior Frontend Engineer · 7+ years shipping React, Next.js, TypeScript, and Tailwind in production, with a deep Vue/Nuxt background. I ship fast because AI is wired into my engineering: Claude Code at the agent layer, MCP servers, and multi-agent systems; I recently delivered an internal 8-lesson AI program for executive leadership. Open to strong product-driven teams where engineering quality and AI-native development matter.",
+  ru: "Senior Frontend Engineer · 7+ лет в продакшен-разработке на React, Next.js, TypeScript и Tailwind, с сильным бэкграундом в Vue/Nuxt. Выкатываю быстро, потому что ИИ глубоко вшит в моё инженерное мышление: Claude Code на уровне агентов, MCP-серверы и мультиагентные системы; недавно провёл внутренний курс из 8 уроков по ИИ для топ-менеджмента. Открыт к сильным продуктовым командам, где инженерное качество и AI-native-разработка важны не на словах.",
 } as const;
 
 /**
