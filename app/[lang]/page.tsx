@@ -1,14 +1,22 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Github, Mail, Linkedin, Send, Instagram, Facebook, Phone } from "lucide-react";
-import { ModeToggle } from "@/components/mode-toggle";
-import { LangToggle } from "@/components/lang-toggle";
+import { ArrowUpRight, MapPin } from "lucide-react";
+import { ActivityList } from "@/components/portfolio/activity-list";
+import { MetricStrip } from "@/components/portfolio/metric-strip";
+import { ProjectCard } from "@/components/portfolio/project-card";
+import { SiteShell } from "@/components/portfolio/site-shell";
+import { Button } from "@/components/ui/button";
+import { getPortfolioData } from "@/lib/portfolio/data";
 import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
 import { buildPersonSchema } from "@/lib/structured-data";
 import { portfolioConfig } from "@/portfolio.config";
 
-const LINK_CLASS =
-  "border-border hover:bg-accent flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors";
+const { features } = portfolioConfig;
+
+function localizedHref(locale: Locale, href: string) {
+  return locale === portfolioConfig.locale.default ? href : `/${locale}${href}`;
+}
 
 export default async function HomePage({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
@@ -16,145 +24,158 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
   if (!hasLocale(lang)) notFound();
 
   const locale = lang as Locale;
-  const dict = await getDictionary(locale);
+  await getDictionary(locale);
   const jsonLd = buildPersonSchema(locale);
-  const { name, title, bio, social, photo } = portfolioConfig;
+
+  // Only load portfolio data for the sections that are actually shown.
+  const showFeed = features.projects || features.activity;
+  const data = showFeed ? await getPortfolioData() : null;
+  const featuredProjects = data?.projects.slice(0, 2) ?? [];
+
+  const contactLinks = portfolioConfig.contact.filter((item) => item.href);
 
   return (
-    <>
+    <SiteShell locale={locale}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      {/* Skip to main content — WCAG 2.4.1 Level A */}
-      <a
-        href="#main"
-        className="focus:bg-background focus:ring-ring sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:ring-2"
-      >
-        {dict.a11y.skipToMain}
-      </a>
-      <div className="bg-background flex min-h-screen flex-col items-center px-6 py-12 sm:px-12">
-        <header className="flex w-full max-w-2xl items-center justify-between">
-          <span className="text-muted-foreground text-sm font-medium">{name}</span>
-          <div className="flex items-center gap-2">
-            <LangToggle />
-            <ModeToggle />
-          </div>
-        </header>
 
-        <main
-          id="main"
-          className="flex w-full max-w-2xl flex-1 flex-col items-start justify-center gap-8 py-20"
-        >
-          <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+      <section className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+        <div className="max-w-3xl">
+          <div className="flex items-center gap-4">
             <Image
-              src={photo}
-              alt={name}
-              width={96}
-              height={96}
+              src={portfolioConfig.avatar}
+              alt={portfolioConfig.name}
+              width={88}
+              height={88}
               priority
-              className="rounded-full object-cover"
+              className="border-border rounded-md border object-cover"
             />
-            <div className="flex flex-col gap-1">
-              <h1 className="text-3xl font-bold tracking-tight">{name}</h1>
-              <p className="text-muted-foreground text-lg">{title[locale]}</p>
+            <div>
+              <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
+                <MapPin className="h-4 w-4" />
+                {portfolioConfig.location}
+              </p>
+              <h1 className="mt-2 text-4xl leading-tight font-semibold tracking-tight md:text-6xl">
+                {portfolioConfig.name}
+              </h1>
             </div>
           </div>
 
-          <p className="text-foreground/80 max-w-lg text-base leading-relaxed">{bio[locale]}</p>
+          <p className="text-primary mt-6 font-mono text-sm font-medium uppercase">
+            {portfolioConfig.role[locale]}
+          </p>
+          <p className="text-muted-foreground mt-4 max-w-2xl text-base leading-7">
+            {portfolioConfig.bio[locale]}
+          </p>
 
-          <div className="flex flex-wrap gap-3">
-            {social.github && (
-              <a
-                href={social.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className={LINK_CLASS}
-              >
-                <Github className="h-4 w-4" aria-hidden="true" />
-                GitHub
-              </a>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {features.projects && (
+              <Button asChild className="rounded-md">
+                <Link href={localizedHref(locale, "/projects")}>
+                  View projects
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </Button>
             )}
-            {social.linkedin && (
-              <a
-                href={social.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-                className={LINK_CLASS}
+            {features.about && (
+              <Button
+                asChild
+                variant={features.projects ? "outline" : "default"}
+                className="rounded-md"
               >
-                <Linkedin className="h-4 w-4" aria-hidden="true" />
-                LinkedIn
-              </a>
+                <Link href={localizedHref(locale, "/about")}>About me</Link>
+              </Button>
             )}
-            {social.telegram && (
-              <a
-                href={social.telegram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Telegram"
-                className={LINK_CLASS}
-              >
-                <Send className="h-4 w-4" aria-hidden="true" />
-                Telegram
-              </a>
-            )}
-            {social.instagram && (
-              <a
-                href={social.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                className={LINK_CLASS}
-              >
-                <Instagram className="h-4 w-4" aria-hidden="true" />
-                Instagram
-              </a>
-            )}
-            {social.facebook && (
-              <a
-                href={social.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-                className={LINK_CLASS}
-              >
-                <Facebook className="h-4 w-4" aria-hidden="true" />
-                Facebook
-              </a>
-            )}
-            {social.whatsapp && (
-              <a
-                href={social.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="WhatsApp"
-                className={LINK_CLASS}
-              >
-                <Phone className="h-4 w-4" aria-hidden="true" />
-                WhatsApp
-              </a>
-            )}
-            {social.email && (
-              <a
-                href={`mailto:${social.email}`}
-                aria-label={dict.home.contactEmail}
-                className={LINK_CLASS}
-              >
-                <Mail className="h-4 w-4" aria-hidden="true" />
-                {dict.home.contactEmail}
-              </a>
+            {features.ask && (
+              <Button asChild variant="outline" className="rounded-md">
+                <Link href={localizedHref(locale, "/ask")}>Ask about this developer</Link>
+              </Button>
             )}
           </div>
+        </div>
 
-          <span className="border-border text-muted-foreground rounded-full border px-4 py-1.5 text-xs font-medium">
-            {dict.home.comingSoon}
-          </span>
-        </main>
-      </div>
-    </>
+        <div className="border-border/70 bg-card/50 rounded-md border p-5">
+          <p className="text-muted-foreground font-mono text-xs uppercase">Get in touch</p>
+          <div className="mt-4 space-y-2">
+            {contactLinks.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                target={item.href.startsWith("http") ? "_blank" : undefined}
+                rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+                className="border-border/70 bg-background/40 hover:bg-accent group flex items-center justify-between rounded-md border px-3 py-2.5 text-sm transition-colors"
+              >
+                <span className="font-medium">{item.label}</span>
+                <ArrowUpRight className="text-muted-foreground group-hover:text-foreground h-4 w-4" />
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {showFeed && data && (
+        <section className="mt-10">
+          <MetricStrip metrics={data.metrics} />
+        </section>
+      )}
+
+      {showFeed && data && (
+        <section
+          className={`mt-12 grid gap-8 ${
+            features.projects && features.activity ? "lg:grid-cols-[0.95fr_1.05fr]" : ""
+          }`}
+        >
+          {features.projects && (
+            <div>
+              <div className="mb-4 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-muted-foreground font-mono text-xs uppercase">Featured work</p>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+                    Selected repositories
+                  </h2>
+                </div>
+                <Link
+                  href={localizedHref(locale, "/projects")}
+                  className="text-muted-foreground hover:text-foreground text-sm font-medium"
+                >
+                  All projects
+                </Link>
+              </div>
+              <div className="space-y-4">
+                {featuredProjects.map((project) => (
+                  <ProjectCard key={project.slug} project={project} locale={locale} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {features.activity && (
+            <div>
+              <div className="mb-4 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-muted-foreground font-mono text-xs uppercase">
+                    Latest Engineering Activity
+                  </p>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+                    Readable project updates
+                  </h2>
+                </div>
+                <Link
+                  href={localizedHref(locale, "/activity")}
+                  className="text-muted-foreground hover:text-foreground text-sm font-medium"
+                >
+                  Full feed
+                </Link>
+              </div>
+              <ActivityList items={data.activity} locale={locale} limit={5} />
+            </div>
+          )}
+        </section>
+      )}
+    </SiteShell>
   );
 }
