@@ -5,6 +5,8 @@ import { locales, defaultLocale } from "@/lib/i18n";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname.startsWith("/api/")) return;
+
   // /en/... → redirect to /... (strip default locale prefix from URL)
   if (pathname === `/${defaultLocale}` || pathname.startsWith(`/${defaultLocale}/`)) {
     const newPath = pathname.slice(`/${defaultLocale}`.length) || "/";
@@ -25,5 +27,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|_vercel|favicon.ico|.*\\..*).*)", "/"],
+  matcher: ["/((?!api|_next|_vercel|favicon.ico|.*\\..*).*)", "/"],
 };
