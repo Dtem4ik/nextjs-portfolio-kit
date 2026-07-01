@@ -1,257 +1,198 @@
-# 🚀 Next.js Portfolio Kit
+# Next.js AI Portfolio Kit
 
-<div align="center">
+An open-source developer portfolio system that anyone can fork, deploy to Vercel, edit one config file, and get a live engineering profile.
 
-![Next.js](https://img.shields.io/badge/Next.js_16-black?style=for-the-badge&logo=next.js&logoColor=white)
-![React](https://img.shields.io/badge/React_19-blue?style=for-the-badge&logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=for-the-badge&logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+This is not a static resume. The app turns selected GitHub repositories into project pages, readable engineering activity, changelog-style updates, and grounded portfolio Q&A.
 
-_A production-ready starter kit for building a professional portfolio_
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Dtem4ik/nextjs-portfolio-kit)
 
-[Demo](https://nextjs-portfolio-kit.vercel.app)
+## What It Includes
 
-</div>
+- Next.js 16 App Router, React 19, TypeScript strict mode
+- Tailwind CSS v4 with CSS-first OKLCH tokens
+- Single source of truth in `portfolio.config.ts`
+- GitHub API project import for selected repositories
+- Activity feed that turns commits and releases into readable updates
+- Optional OpenAI-powered ask endpoint grounded in indexed portfolio data
+- Optional Supabase persistence for projects, commits, releases, activity, AI summaries, and chat logs
+- Vercel Cron route for scheduled syncs
+- SEO metadata, sitemap, robots, OG image, JSON-LD Person schema, and i18n routing
 
----
-
-## 📋 Overview
-
-**Next.js Portfolio Kit** is a minimal, SEO-first portfolio template. Edit one file — `portfolio.config.ts` — and the entire site updates: metadata, Open Graph, JSON-LD, sitemap, OG image, and page content.
-
-### ✨ Features
-
-- ⚡️ **Next.js 16** App Router with static generation (`generateStaticParams`)
-- ⚛️ **React 19** Server Components by default
-- 🎨 **Tailwind CSS v4** with OKLCH design tokens and dark mode
-- 🌍 **i18n** — native Next.js 16 routing, "as-needed" URL prefixing (`/` for EN, `/ru` for RU)
-- 🔍 **SEO** — `generateMetadata`, canonical URLs, hreflang + `x-default`, Open Graph, Twitter Card, `robots.txt`, `sitemap.xml`
-- 📊 **JSON-LD** structured data (Person schema via `schema-dts`)
-- 🖼️ **Dynamic OG image** — auto-generated via `next/og`
-- ♿ **Accessibility** — WCAG 2.4.1 skip link, semantic HTML, `aria-*` attributes
-- 🌙 **Dark / light mode** via `next-themes`
-- 📝 **TypeScript** strict mode
-- 🔧 **shadcn/ui** + Radix UI component primitives
-
----
-
-## 🛠 Tech Stack
-
-### Core
-
-- **Framework:** [Next.js 16](https://nextjs.org/)
-- **React:** [React 19](https://react.dev/)
-- **Language:** [TypeScript 5](https://www.typescriptlang.org/)
-
-### Styling
-
-- **CSS Framework:** [Tailwind CSS v4](https://tailwindcss.com/)
-- **Components:** [shadcn/ui](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/)
-- **Icons:** [Lucide React](https://lucide.dev/)
-
-### SEO & Analytics
-
-- **Structured Data:** [schema-dts](https://github.com/google/schema-dts)
-- **Analytics:** [Vercel Speed Insights](https://vercel.com/docs/speed-insights)
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js 22 or higher
-- pnpm (recommended)
-
-### Installation
-
-1. **Clone the repository**
+## Quick Start
 
 ```bash
 git clone https://github.com/Dtem4ik/nextjs-portfolio-kit.git
 cd nextjs-portfolio-kit
-```
-
-2. **Install dependencies**
-
-```bash
 pnpm install
-```
-
-3. **Add your photo**
-
-Place a `400×400px` WebP or JPEG at `public/photo.jpg`.
-
-4. **Edit your personal data**
-
-```bash
-# This is the only file you need to edit
-open portfolio.config.ts
-```
-
-Fill in your name, title, bio, domain, and social links. Everything else derives from this config automatically.
-
-5. **Start the development server**
-
-```bash
+cp .env.example .env.local
 pnpm dev
 ```
 
-Navigate to [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000).
 
----
+## Configure Your Portfolio
 
-## ⚙️ Configuration
+Edit `portfolio.config.ts`. This is the main file fork users should change:
+your name, role, bio, avatar, social links, skills, experience, and projects.
 
-All personal data lives in a single file:
+Each configured project can include fallback stats, commits, releases, stack, live demo URL, and a local AI summary. The site still renders if GitHub, Supabase, or AI credentials are not configured.
+
+## Features & Integrations
+
+Everything beyond Home is opt-in. On a fresh fork only **Home + About** are enabled and the site renders entirely from `portfolio.config.ts` with **zero external keys**. Turn things on as you need them.
+
+`features` — which pages exist (Home is always on):
 
 ```ts
-// portfolio.config.ts
-export const portfolioConfig = {
-  name: "Your Name",
-  title: { en: "Frontend Engineer", ru: "..." },
-  bio:   { en: "...", ru: "..." },
-  photo: "/photo.jpg",
-  url:   "https://yourdomain.com",
-  social: {
-    github:    "https://github.com/username",
-    linkedin:  "https://linkedin.com/in/username",
-    email:     "",
-    telegram:  "",
-    instagram: "",
-    facebook:  "",
-    whatsapp:  "",
-  },
-  keywords: { en: [...], ru: [...] },
-  locale: { default: "en", supported: ["en", "ru"] },
+const features = {
+  projects: false, // /projects + /projects/[slug]
+  activity: false, // /activity + the home-page feed
+  about: true, // /about (résumé from skills + experience)
+  ask: false, // /ask + /api/ask (public LLM endpoint — costs money)
 };
 ```
 
----
+Disabled pages 404, drop out of the nav, and are excluded from the sitemap.
 
-## 📁 Project Structure
+`integrations` — data sources that enrich enabled pages. When an integration is off (or its keys are missing) pages fall back to the data in `portfolio.config.ts`:
 
-```
-nextjs-portfolio-kit/
-├── app/
-│   ├── [lang]/                    # Locale-based routing
-│   │   ├── layout.tsx             # Root layout, metadata, generateStaticParams
-│   │   ├── page.tsx               # Home page
-│   │   ├── not-found.tsx          # Locale-aware 404
-│   │   └── opengraph-image.tsx    # Dynamic OG image (1200×630)
-│   ├── robots.ts                  # /robots.txt generator
-│   ├── sitemap.ts                 # /sitemap.xml generator
-│   └── globals.css                # Tailwind v4 config + OKLCH tokens
-├── components/
-│   ├── ui/                        # shadcn/ui primitives (CLI-managed, do not edit)
-│   ├── lang-toggle.tsx            # Language switcher
-│   ├── mode-toggle.tsx            # Dark/light theme toggle
-│   └── theme-provider.tsx         # next-themes provider
-├── dictionaries/
-│   ├── en.json                    # English UI strings
-│   └── ru.json                    # Russian UI strings
-├── lib/
-│   ├── dictionaries.ts            # getDictionary() — server-only
-│   ├── i18n.ts                    # Locale config, labels, OG locale map
-│   ├── structured-data.ts         # JSON-LD Person schema builder
-│   └── utils.ts                   # cn() — clsx + tailwind-merge
-├── public/                        # Static assets (place photo.jpg here)
-├── portfolio.config.ts            # ⭐ Single source of truth — edit this
-├── proxy.ts                       # Next.js 16 Proxy — i18n routing
-├── components.json                # shadcn/ui config
-├── next.config.ts                 # Next.js config
-└── package.json                   # Dependencies and scripts
+```ts
+const integrations = {
+  github: { enabled: false, username: "yourname", featuredRepositories: ["repo"] },
+  ai: { enabled: false, provider: "openai", model: "gpt-4o-mini" }, // or "anthropic"
+  supabase: { enabled: false, maxAgeMinutes: 720 }, // read-through cache; cron refreshes it
+};
 ```
 
----
+Data resolution order at request time: **fresh Supabase snapshot → live GitHub API → config fallback.** The `/api/cron/sync` job fetches fresh from GitHub and writes the snapshot Supabase serves.
 
-## 📜 Available Commands
+## Environment Variables
+
+All optional — add only the keys for integrations you enable.
 
 ```bash
-# Development
-pnpm dev              # Start dev server
+GITHUB_TOKEN=                 # Raises GitHub API limits (github integration works without it too)
 
-# Build
-pnpm build            # Create production build
-pnpm start            # Start production server
+GEMINI_API_KEY=               # AI + news when integrations.ai.provider = "gemini" (free tier)
+OPENAI_API_KEY=               # ...when integrations.ai.provider = "openai"
+ANTHROPIC_API_KEY=            # ...when integrations.ai.provider = "anthropic"
 
-# Code Quality
-pnpm lint             # Run linter
-pnpm lint:fix         # Auto-fix linting issues
-pnpm format           # Format code
-pnpm format:check     # Check code formatting
-pnpm typecheck        # Run TypeScript type checking
+NEXT_PUBLIC_SUPABASE_URL=     # Supabase snapshot cache (required for the AI changelog)
+SUPABASE_SERVICE_ROLE_KEY=    # Server-only key for cron sync inserts
+
+CRON_SECRET=                  # Bearer secret protecting /api/cron/sync
 ```
 
----
+Do not expose `SUPABASE_SERVICE_ROLE_KEY` in client code.
 
-## 🌍 Adding a Language
+## GitHub Setup
 
-1. Add the locale to `portfolio.config.ts`:
-   ```ts
-   locale: { default: "en", supported: ["en", "ru", "de"] }
-   ```
-2. Add `dictionaries/de.json` (copy from `en.json` and translate)
-3. Register it in `lib/dictionaries.ts` dictionaries map
-4. Add the OG locale mapping to `lib/i18n.ts` → `ogLocale`
+1. Create a fine-grained GitHub token with read-only access to public repositories.
+2. Add it as `GITHUB_TOKEN` in `.env.local` and Vercel project settings.
+3. Add repository names to `portfolioConfig.github.featuredRepositories`.
+4. Add matching project objects in `portfolioConfig.projects`.
 
----
+The data layer fetches repository stats, languages, latest commits, and releases. If GitHub is unavailable, the app uses the fallback content from config.
 
-## 🚢 Deployment
+## Supabase Setup
 
-### Vercel (Recommended)
+1. Create a Supabase project.
+2. Open SQL Editor.
+3. Run [docs/supabase-schema.sql](docs/supabase-schema.sql).
+4. Add `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to Vercel.
+5. Trigger `/api/cron/sync` or wait for the Vercel Cron schedule.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Dtem4ik/nextjs-portfolio-kit)
+Tables included:
 
-After deploying, submit your sitemap to [Google Search Console](https://search.google.com/search-console):
+- `profile`
+- `projects`
+- `commits`
+- `releases`
+- `activity_items`
+- `ai_summaries`
+- `chat_logs`
 
+The app writes through Supabase REST, so no Supabase client dependency is required for the initial template.
+
+## AI Setup
+
+The AI integration powers two things, both governed by `integrations.ai`:
+
+1. **Commit-to-news changelog** — during the cron sync, recent commits for each project are turned into a polished, plain-language news entry (headline, body, tags) and stored in Supabase. This is the site's signature feature. The model runs once per sync, not per visitor, so the feed is cheap to serve.
+2. **Ask page** (`/api/ask`) — grounded Q&A over your indexed portfolio context, rate-limited to curb abuse.
+
+Set `integrations.ai.provider` and the matching key:
+
+- `"gemini"` (default) → `GEMINI_API_KEY` — free tier at https://aistudio.google.com/apikey, model e.g. `gemini-3.1-flash-lite` (with fallbacks)
+- `"openai"` → `OPENAI_API_KEY`
+- `"anthropic"` → `ANTHROPIC_API_KEY`
+
+With no key configured, Ask returns a deterministic local fallback and no AI news is generated (the feed falls back to plain commit/release activity).
+
+The AI changelog requires Supabase + the cron job: the cron generates and stores the news; pages read it from the cached snapshot.
+
+## Vercel Cron
+
+`vercel.json` schedules:
+
+```json
+{
+  "path": "/api/cron/sync",
+  "schedule": "0 */6 * * *"
+}
 ```
-https://yourdomain.com/sitemap.xml
+
+If `CRON_SECRET` is set, call the route with:
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" https://your-domain.com/api/cron/sync
 ```
 
----
+## Pages
 
-## 📞 Contact
+- `/` - live developer dashboard
+- `/projects` - GitHub-powered project index
+- `/projects/[slug]` - individual project page
+- `/activity` - latest engineering activity feed
+- `/about` - config-driven resume/profile
+- `/ask` - grounded portfolio Q&A
 
-- GitHub: [@Dtem4ik](https://github.com/Dtem4ik)
-- Project: [nextjs-portfolio-kit](https://github.com/Dtem4ik/nextjs-portfolio-kit)
+Locale-prefixed routes are also generated for configured non-default locales.
 
----
+## Commands
 
-## 🤝 Contributing
+```bash
+pnpm dev
+pnpm build
+pnpm lint
+pnpm format
+pnpm typecheck
+```
 
-Contributions are welcome! If you'd like to improve the project:
+## Project Structure
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+```text
+app/
+  [lang]/
+    page.tsx
+    projects/
+    activity/
+    about/
+    ask/
+  api/
+    ask/
+    cron/sync/
+components/
+  portfolio/
+  ui/
+lib/
+  portfolio/
+docs/
+  supabase-schema.sql
+portfolio.config.ts
+vercel.json
+```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for commit conventions and code quality rules.
+## License
 
----
-
-## 📝 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/) — for the amazing framework
-- [Vercel](https://vercel.com/) — for hosting and tools
-- [Tailwind CSS](https://tailwindcss.com/) — for the awesome CSS framework
-- [shadcn/ui](https://ui.shadcn.com/) — for the component system
-
----
-
-<div align="center">
-
-**[⬆ Back to top](#-nextjs-portfolio-kit)**
-
-Made with ❤️ by [Dtem4ik](https://github.com/Dtem4ik)
-
-</div>
+MIT
