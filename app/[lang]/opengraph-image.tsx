@@ -6,7 +6,7 @@ export const contentType = "image/png";
 
 export default async function OgImage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;
-  const { name, title, url } = portfolioConfig;
+  const { name, role, url } = portfolioConfig;
 
   return new ImageResponse(
     <div
@@ -40,7 +40,7 @@ export default async function OgImage({ params }: { params: Promise<{ lang: Loca
           margin: 0,
         }}
       >
-        {title[lang]}
+        {role[lang]}
       </p>
       <p
         style={{
