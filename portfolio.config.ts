@@ -89,6 +89,9 @@ const integrations = {
   supabase: {
     enabled: true,
     maxAgeMinutes: 720, // treat a cached snapshot older than this as stale
+    // Pages cache the Supabase read for this long (ISR) instead of hitting the
+    // DB on every request. The cron refreshes data daily, so 15 min is safe.
+    revalidateSeconds: 900,
   },
 } as const;
 

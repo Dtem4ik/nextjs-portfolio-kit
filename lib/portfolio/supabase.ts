@@ -46,8 +46,9 @@ async function readRows<T>(table: string, query: string): Promise<T[]> {
 
   const response = await fetch(`${supabaseUrl}/rest/v1/${table}?${query}`, {
     headers: supabaseHeaders({ Accept: "application/json" }),
-    // Read at request time; the cron job is what refreshes the underlying data.
-    cache: "no-store",
+    // ISR-cache the read so pages don't hit the DB on every request; the cron
+    // refreshes the underlying data daily.
+    next: { revalidate: portfolioConfig.integrations.supabase.revalidateSeconds },
   });
 
   if (!response.ok) return [];
