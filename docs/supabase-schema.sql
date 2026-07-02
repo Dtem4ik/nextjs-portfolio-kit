@@ -57,8 +57,12 @@ create table if not exists activity_items (
   href text not null,
   type text not null check (type in ('commit', 'release', 'project', 'changelog')),
   tags text[] not null default '{}',
+  -- BCP-47 locale of AI-generated text (e.g. 'en', 'ru'); null = locale-agnostic (releases/commits).
+  locale text,
   created_at timestamptz not null default now()
 );
+
+create index if not exists activity_items_locale_idx on activity_items (locale);
 
 create table if not exists ai_summaries (
   id uuid primary key default gen_random_uuid(),

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { GitCommitHorizontal, Rocket, Sparkles, SquareArrowOutUpRight } from "lucide-react";
+import { getDictionary, type Locale } from "@/lib/dictionaries";
 import type { ActivityItem } from "@/lib/portfolio/types";
-import { portfolioConfig, type Locale } from "@/portfolio.config";
+import { portfolioConfig } from "@/portfolio.config";
 
 const iconByType = {
   release: Rocket,
@@ -10,8 +11,8 @@ const iconByType = {
   project: GitCommitHorizontal,
 } as const;
 
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat("en", {
+function formatDate(date: string, locale: Locale) {
+  return new Intl.DateTimeFormat(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -23,7 +24,7 @@ function projectHref(locale: Locale, slug: string) {
   return locale === portfolioConfig.locale.default ? href : `/${locale}${href}`;
 }
 
-export function ActivityList({
+export async function ActivityList({
   items,
   locale,
   limit,
@@ -32,13 +33,13 @@ export function ActivityList({
   locale: Locale;
   limit?: number;
 }) {
+  const dict = await getDictionary(locale);
   const visibleItems = typeof limit === "number" ? items.slice(0, limit) : items;
 
   if (visibleItems.length === 0) {
     return (
       <div className="border-border/70 text-muted-foreground rounded-md border p-6 text-sm">
-        No activity has been indexed yet. Add repositories to portfolio.config.ts, set GITHUB_TOKEN,
-        and run the sync route.
+        {dict.activity.empty}
       </div>
     );
   }
@@ -52,7 +53,7 @@ export function ActivityList({
           <li key={item.id} className="bg-card/45 hover:bg-card p-5 transition-colors">
             <div className="grid gap-4 md:grid-cols-[10rem_1fr_auto] md:items-start">
               <time className="text-muted-foreground font-mono text-xs tabular-nums">
-                {formatDate(item.date)}
+                {formatDate(item.date, locale)}
               </time>
               <div>
                 <div className="flex items-center gap-2">
@@ -93,7 +94,7 @@ export function ActivityList({
                 rel="noreferrer"
                 className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm font-medium"
               >
-                Open
+                {dict.activity.open}
                 <SquareArrowOutUpRight className="h-4 w-4" />
               </a>
             </div>

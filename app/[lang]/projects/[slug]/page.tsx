@@ -6,7 +6,7 @@ import { ActivityList } from "@/components/portfolio/activity-list";
 import { SiteShell } from "@/components/portfolio/site-shell";
 import { Button } from "@/components/ui/button";
 import { getPortfolioData, getProjectSlugs } from "@/lib/portfolio/data";
-import { hasLocale, type Locale } from "@/lib/dictionaries";
+import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
 import { portfolioConfig } from "@/portfolio.config";
 
 function localizedHref(locale: Locale, href: string) {
@@ -45,7 +45,8 @@ export default async function ProjectPage({
   if (!portfolioConfig.features.projects) notFound();
 
   const locale = lang as Locale;
-  const data = await getPortfolioData();
+  const dict = await getDictionary(locale);
+  const data = await getPortfolioData(locale);
   const project = data.projects.find((item) => item.slug === slug);
   if (!project) notFound();
 
@@ -59,7 +60,7 @@ export default async function ProjectPage({
           className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm font-medium"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to projects
+          {dict.project.back}
         </Link>
       </div>
 
@@ -84,13 +85,13 @@ export default async function ProjectPage({
           <div className="mt-7 flex flex-wrap gap-3">
             <Button asChild className="rounded-md">
               <a href={project.sourceUrl} target="_blank" rel="noreferrer">
-                Source
+                {dict.project.source}
               </a>
             </Button>
             {project.liveDemoUrl && (
               <Button asChild variant="outline" className="rounded-md">
                 <a href={project.liveDemoUrl} target="_blank" rel="noreferrer">
-                  Live demo
+                  {dict.project.liveDemo}
                 </a>
               </Button>
             )}
@@ -98,24 +99,26 @@ export default async function ProjectPage({
         </div>
 
         <aside className="border-border/70 bg-card/50 h-fit rounded-md border p-5">
-          <p className="text-muted-foreground font-mono text-xs uppercase">Repository metrics</p>
+          <p className="text-muted-foreground font-mono text-xs uppercase">
+            {dict.project.repoMetrics}
+          </p>
           <dl className="mt-5 space-y-4">
             <div className="flex items-center justify-between">
               <dt className="text-muted-foreground flex items-center gap-2 text-sm">
                 <Star className="h-4 w-4" />
-                Stars
+                {dict.project.stars}
               </dt>
               <dd className="font-mono text-lg tabular-nums">{project.stats.stars}</dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="text-muted-foreground flex items-center gap-2 text-sm">
                 <GitFork className="h-4 w-4" />
-                Forks
+                {dict.project.forks}
               </dt>
               <dd className="font-mono text-lg tabular-nums">{project.stats.forks}</dd>
             </div>
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground text-sm">Open issues</dt>
+              <dt className="text-muted-foreground text-sm">{dict.project.openIssues}</dt>
               <dd className="font-mono text-lg tabular-nums">{project.stats.openIssues}</dd>
             </div>
           </dl>
@@ -124,8 +127,12 @@ export default async function ProjectPage({
 
       <section className="mt-12">
         <div className="mb-4">
-          <p className="text-muted-foreground font-mono text-xs uppercase">Latest activity</p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight">Commits and releases</h2>
+          <p className="text-muted-foreground font-mono text-xs uppercase">
+            {dict.project.latestActivity}
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+            {dict.project.commitsAndReleases}
+          </h2>
         </div>
         <ActivityList items={activity} locale={locale} />
       </section>

@@ -102,6 +102,7 @@ export async function persistPortfolioSnapshot(data: PortfolioData) {
     href: item.href,
     type: item.type,
     tags: item.tags ?? [],
+    locale: item.locale ?? null,
   }));
 
   const results = await Promise.all([
@@ -163,6 +164,7 @@ type ActivityRow = {
   href: string;
   type: ActivityItem["type"];
   tags: string[] | null;
+  locale: string | null;
 };
 
 /**
@@ -171,7 +173,7 @@ type ActivityRow = {
  * Supabase is disabled, empty, or the snapshot is older than
  * `integrations.supabase.maxAgeMinutes` (so callers fall back to a live fetch).
  */
-export async function readPortfolioSnapshot(): Promise<{
+export async function readPortfolioSnapshot(locale?: string): Promise<{
   projects: PortfolioProject[];
   activity: ActivityItem[];
   generatedAt: string;
@@ -185,11 +187,16 @@ export async function readPortfolioSnapshot(): Promise<{
   const ageMinutes = (Date.now() - new Date(state.generated_at).getTime()) / 60000;
   if (ageMinutes > portfolioConfig.integrations.supabase.maxAgeMinutes) return null;
 
+  // Activity: current-locale items plus locale-agnostic ones (locale is null).
+  const activityQuery = locale
+    ? `select=*&or=(locale.eq.${locale},locale.is.null)&order=happened_at.desc`
+    : "select=*&order=happened_at.desc";
+
   const [projectRows, commitRows, releaseRows, activityRows] = await Promise.all([
     readRows<ProjectRow>("projects", "select=*"),
     readRows<CommitRow>("commits", "select=*&order=committed_at.desc"),
     readRows<ReleaseRow>("releases", "select=*&order=published_at.desc"),
-    readRows<ActivityRow>("activity_items", "select=*&order=happened_at.desc"),
+    readRows<ActivityRow>("activity_items", activityQuery),
   ]);
 
   if (projectRows.length === 0) return null;
@@ -206,6 +213,7 @@ export async function readPortfolioSnapshot(): Promise<{
     href: row.href,
     type: row.type,
     tags: row.tags ?? [],
+    locale: row.locale,
   }));
 
   const projects = projectRows.map((row): PortfolioProject => {

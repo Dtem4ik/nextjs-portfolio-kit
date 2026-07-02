@@ -3,33 +3,46 @@ import { Github, Linkedin, Mail } from "lucide-react";
 import { LangToggle } from "@/components/lang-toggle";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
-import { portfolioConfig, type Locale } from "@/portfolio.config";
+import { getDictionary, type Locale } from "@/lib/dictionaries";
+import { portfolioConfig } from "@/portfolio.config";
 
 const { features } = portfolioConfig;
 
 // Home is always present; every other entry is gated by its feature flag so the
-// nav never links to a page that is turned off (and returns 404).
-const navItems = [
-  { href: "/", label: "Home", enabled: true },
-  { href: "/projects", label: "Projects", enabled: features.projects },
-  { href: "/activity", label: "Activity", enabled: features.activity },
-  { href: "/about", label: "About", enabled: features.about },
-  { href: "/ask", label: "Ask", enabled: features.ask },
-].filter((item) => item.enabled);
+// nav never links to a page that is turned off (and returns 404). `key` maps to
+// the localized label in dict.nav.
+const navConfig: { href: string; key: "home" | "projects" | "activity" | "about" | "ask" }[] = [
+  { href: "/", key: "home" },
+  { href: "/projects", key: "projects" },
+  { href: "/activity", key: "activity" },
+  { href: "/about", key: "about" },
+  { href: "/ask", key: "ask" },
+].filter((item) => (item.key === "home" ? true : features[item.key as keyof typeof features])) as {
+  href: string;
+  key: "home" | "projects" | "activity" | "about" | "ask";
+}[];
 
 function localizedHref(locale: Locale, href: string) {
   if (locale === portfolioConfig.locale.default) return href;
   return href === "/" ? `/${locale}` : `/${locale}${href}`;
 }
 
-export function SiteShell({ locale, children }: { locale: Locale; children: React.ReactNode }) {
+export async function SiteShell({
+  locale,
+  children,
+}: {
+  locale: Locale;
+  children: React.ReactNode;
+}) {
+  const dict = await getDictionary(locale);
+
   return (
     <div className="bg-background text-foreground min-h-[100dvh]">
       <a
         href="#main"
         className="focus:bg-background focus:ring-ring sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:ring-2"
       >
-        Skip to main content
+        {dict.a11y.skipToMain}
       </a>
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.08),transparent_24rem),linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:auto,48px_48px,48px_48px] dark:bg-[radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.08),transparent_24rem),linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)]" />
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">
@@ -51,13 +64,13 @@ export function SiteShell({ locale, children }: { locale: Locale; children: Reac
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
-            {navItems.map((item) => (
+            {navConfig.map((item) => (
               <Link
                 key={item.href}
                 href={localizedHref(locale, item.href)}
                 className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-md px-3 py-2 text-sm font-medium transition-colors"
               >
-                {item.label}
+                {dict.nav[item.key]}
               </Link>
             ))}
           </nav>

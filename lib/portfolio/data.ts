@@ -96,8 +96,8 @@ export async function buildFreshPortfolioData(): Promise<PortfolioData> {
  * 2. Live GitHub API (when the GitHub integration is enabled)
  * 3. Config fallback data (always works, zero external calls)
  */
-export async function getPortfolioData(): Promise<PortfolioData> {
-  const snapshot = await readPortfolioSnapshot();
+export async function getPortfolioData(locale?: string): Promise<PortfolioData> {
+  const snapshot = await readPortfolioSnapshot(locale);
   if (snapshot) {
     // Use the stored activity feed (which includes AI-generated changelog items)
     // rather than recomputing raw commit activity from the projects.

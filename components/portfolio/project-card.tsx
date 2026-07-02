@@ -1,15 +1,24 @@
 import Link from "next/link";
 import { ArrowUpRight, GitFork, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getDictionary, type Locale } from "@/lib/dictionaries";
 import type { PortfolioProject } from "@/lib/portfolio/types";
-import { portfolioConfig, type Locale } from "@/portfolio.config";
+import { portfolioConfig } from "@/portfolio.config";
 
 function localizedProjectHref(locale: Locale, slug: string) {
   const href = `/projects/${slug}`;
   return locale === portfolioConfig.locale.default ? href : `/${locale}${href}`;
 }
 
-export function ProjectCard({ project, locale }: { project: PortfolioProject; locale: Locale }) {
+export async function ProjectCard({
+  project,
+  locale,
+}: {
+  project: PortfolioProject;
+  locale: Locale;
+}) {
+  const dict = await getDictionary(locale);
+
   return (
     <article className="border-border/70 bg-card/55 hover:bg-card rounded-md border p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors">
       <div className="flex flex-col gap-5">
@@ -53,19 +62,19 @@ export function ProjectCard({ project, locale }: { project: PortfolioProject; lo
         <div className="flex flex-wrap gap-2">
           <Button asChild size="sm" className="rounded-md">
             <Link href={localizedProjectHref(locale, project.slug)}>
-              View project
+              {dict.project.viewProject}
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </Button>
           <Button asChild size="sm" variant="outline" className="rounded-md">
             <a href={project.sourceUrl} target="_blank" rel="noreferrer">
-              Source
+              {dict.project.source}
             </a>
           </Button>
           {project.liveDemoUrl && (
             <Button asChild size="sm" variant="outline" className="rounded-md">
               <a href={project.liveDemoUrl} target="_blank" rel="noreferrer">
-                Live demo
+                {dict.project.liveDemo}
               </a>
             </Button>
           )}

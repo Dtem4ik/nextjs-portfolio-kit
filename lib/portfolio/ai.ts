@@ -216,12 +216,21 @@ export async function askPortfolio(question: string): Promise<AskResult> {
 // most once per project per sync.
 // ---------------------------------------------------------------------------
 
-const CHANGELOG_SYSTEM =
-  "You are a technical writer producing changelog/news entries for a developer's portfolio. " +
-  "Given a project's recent commits, write ONE engaging, plain-language update describing what " +
-  "changed and why it matters to a reader. Avoid raw commit jargon and do not just list commits. " +
-  'Respond with ONLY minified JSON of the shape {"headline": string, "body": string, "tags": string[]} ' +
-  "where headline is <= 70 characters, body is 2-3 sentences, and tags is 2-4 short lowercase topic tags.";
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  ru: "Russian",
+};
+
+function changelogSystemPrompt(language: string) {
+  return (
+    "You are a technical writer producing changelog/news entries for a developer's portfolio. " +
+    "Given a project's recent commits, write ONE engaging, plain-language update describing what " +
+    "changed and why it matters to a reader. Avoid raw commit jargon and do not just list commits. " +
+    `Write the headline, body and tags in ${language}. ` +
+    'Respond with ONLY minified JSON of the shape {"headline": string, "body": string, "tags": string[]} ' +
+    "where headline is <= 70 characters, body is 2-3 sentences, and tags is 2-4 short lowercase topic tags."
+  );
+}
 
 type ChangelogDraft = { headline: string; body: string; tags: string[] };
 
@@ -302,7 +311,10 @@ function parseChangelogDraft(raw: string): ChangelogDraft | null {
   }
 }
 
-async function generateProjectChangelog(project: PortfolioProject): Promise<ActivityItem | null> {
+async function generateProjectChangelog(
+  project: PortfolioProject,
+  locale: string,
+): Promise<ActivityItem | null> {
   const commits = project.latestCommits.slice(0, 6);
   if (commits.length === 0) return null;
 
@@ -314,14 +326,15 @@ async function generateProjectChangelog(project: PortfolioProject): Promise<Acti
     ...commits.map((commit) => `- ${commit.message}`),
   ].join("\n");
 
-  const raw = await completeJson(CHANGELOG_SYSTEM, user);
+  const language = LANGUAGE_NAMES[locale] ?? "English";
+  const raw = await completeJson(changelogSystemPrompt(language), user);
   if (!raw) return null;
 
   const draft = parseChangelogDraft(raw);
   if (!draft) return null;
 
   return {
-    id: `${project.slug}-changelog-${commits[0].sha}`,
+    id: `${project.slug}-changelog-${commits[0].sha}-${locale}`,
     projectSlug: project.slug,
     projectName: project.name,
     title: draft.headline,
@@ -330,18 +343,22 @@ async function generateProjectChangelog(project: PortfolioProject): Promise<Acti
     href: project.sourceUrl,
     type: "changelog",
     tags: draft.tags,
+    locale,
   };
 }
 
 /**
- * Generate one AI news/changelog entry per project (best effort). Projects that
- * fail generation are simply skipped, so the caller keeps its raw activity.
+ * Generate one AI news/changelog entry per project per supported locale (best
+ * effort). Projects/locales that fail generation are simply skipped.
  */
 export async function generateChangelogActivity(
   projects: PortfolioProject[],
 ): Promise<ActivityItem[]> {
   if (!isAiConfigured()) return [];
 
-  const items = await Promise.all(projects.map((project) => generateProjectChangelog(project)));
+  const jobs = portfolioConfig.locale.supported.flatMap((locale) =>
+    projects.map((project) => generateProjectChangelog(project, locale)),
+  );
+  const items = await Promise.all(jobs);
   return items.filter((item): item is ActivityItem => item !== null);
 }

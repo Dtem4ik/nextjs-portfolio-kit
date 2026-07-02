@@ -48,6 +48,8 @@ export type ActivityItem = {
   type: "commit" | "release" | "project" | "changelog";
   /** Short topical tags, present on AI-generated changelog entries. */
   tags?: string[];
+  /** BCP-47 locale of AI-generated text; null/undefined = locale-agnostic (e.g. releases). */
+  locale?: string | null;
 };
 
 export type PortfolioData = {

@@ -3,13 +3,19 @@ import { notFound } from "next/navigation";
 import { ProjectCard } from "@/components/portfolio/project-card";
 import { SiteShell } from "@/components/portfolio/site-shell";
 import { getPortfolioData } from "@/lib/portfolio/data";
-import { hasLocale, type Locale } from "@/lib/dictionaries";
+import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
 import { portfolioConfig } from "@/portfolio.config";
 
-export const metadata: Metadata = {
-  title: "Projects",
-  description: "GitHub-powered projects with repository stats, commits, releases, and summaries.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  if (!hasLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return { title: dict.projects.title, description: dict.projects.intro };
+}
 
 export default async function ProjectsPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -17,7 +23,8 @@ export default async function ProjectsPage({ params }: { params: Promise<{ lang:
   if (!portfolioConfig.features.projects) notFound();
 
   const locale = lang as Locale;
-  const data = await getPortfolioData();
+  const dict = await getDictionary(locale);
+  const data = await getPortfolioData(locale);
 
   return (
     <SiteShell locale={locale}>
@@ -25,11 +32,10 @@ export default async function ProjectsPage({ params }: { params: Promise<{ lang:
         <p className="text-muted-foreground font-mono text-xs uppercase">
           @{portfolioConfig.github.username}
         </p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Projects</h1>
-        <p className="text-muted-foreground mt-4 text-base leading-7">
-          Featured repositories are selected in portfolio.config.ts, enriched with GitHub metadata,
-          and summarized from indexed project data.
-        </p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">
+          {dict.projects.title}
+        </h1>
+        <p className="text-muted-foreground mt-4 text-base leading-7">{dict.projects.intro}</p>
       </section>
 
       <section className="mt-10 grid gap-4 lg:grid-cols-2">

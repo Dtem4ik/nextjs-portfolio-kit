@@ -24,12 +24,12 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
   if (!hasLocale(lang)) notFound();
 
   const locale = lang as Locale;
-  await getDictionary(locale);
+  const dict = await getDictionary(locale);
   const jsonLd = buildPersonSchema(locale);
 
   // Only load portfolio data for the sections that are actually shown.
   const showFeed = features.projects || features.activity;
-  const data = showFeed ? await getPortfolioData() : null;
+  const data = showFeed ? await getPortfolioData(locale) : null;
   const featuredProjects = data?.projects.slice(0, 2) ?? [];
 
   const contactLinks = portfolioConfig.contact.filter((item) => item.href);
@@ -76,7 +76,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
             {features.projects && (
               <Button asChild className="rounded-md">
                 <Link href={localizedHref(locale, "/projects")}>
-                  View projects
+                  {dict.home.viewProjects}
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -87,19 +87,21 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
                 variant={features.projects ? "outline" : "default"}
                 className="rounded-md"
               >
-                <Link href={localizedHref(locale, "/about")}>About me</Link>
+                <Link href={localizedHref(locale, "/about")}>{dict.home.aboutMe}</Link>
               </Button>
             )}
             {features.ask && (
               <Button asChild variant="outline" className="rounded-md">
-                <Link href={localizedHref(locale, "/ask")}>Ask about this developer</Link>
+                <Link href={localizedHref(locale, "/ask")}>{dict.home.askCta}</Link>
               </Button>
             )}
           </div>
         </div>
 
         <div className="border-border/70 bg-card/50 rounded-md border p-5">
-          <p className="text-muted-foreground font-mono text-xs uppercase">Get in touch</p>
+          <p className="text-muted-foreground font-mono text-xs uppercase">
+            {dict.home.getInTouch}
+          </p>
           <div className="mt-4 space-y-2">
             {contactLinks.map((item) => (
               <a
@@ -119,7 +121,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
 
       {showFeed && data && (
         <section className="mt-10">
-          <MetricStrip metrics={data.metrics} />
+          <MetricStrip metrics={data.metrics} locale={locale} />
         </section>
       )}
 
@@ -133,16 +135,18 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
             <div>
               <div className="mb-4 flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-muted-foreground font-mono text-xs uppercase">Featured work</p>
+                  <p className="text-muted-foreground font-mono text-xs uppercase">
+                    {dict.home.featuredWork}
+                  </p>
                   <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-                    Selected repositories
+                    {dict.home.selectedRepositories}
                   </h2>
                 </div>
                 <Link
                   href={localizedHref(locale, "/projects")}
                   className="text-muted-foreground hover:text-foreground text-sm font-medium"
                 >
-                  All projects
+                  {dict.home.allProjects}
                 </Link>
               </div>
               <div className="space-y-4">
@@ -158,17 +162,17 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
               <div className="mb-4 flex items-end justify-between gap-4">
                 <div>
                   <p className="text-muted-foreground font-mono text-xs uppercase">
-                    Latest Engineering Activity
+                    {dict.home.latestActivity}
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-                    Readable project updates
+                    {dict.home.readableUpdates}
                   </h2>
                 </div>
                 <Link
                   href={localizedHref(locale, "/activity")}
                   className="text-muted-foreground hover:text-foreground text-sm font-medium"
                 >
-                  Full feed
+                  {dict.home.fullFeed}
                 </Link>
               </div>
               <ActivityList items={data.activity} locale={locale} limit={5} />

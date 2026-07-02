@@ -4,14 +4,22 @@ import { useState, useTransition } from "react";
 import { SendHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const examples = [
-  "What kind of engineer is this developer?",
-  "Which projects show Next.js experience?",
-  "What stack does this portfolio use?",
-] as const;
+export type AskPanelLabels = {
+  panelLabel: string;
+  placeholder: string;
+  helper: string;
+  ask: string;
+  asking: string;
+  modeLabel: string;
+  modeAi: string;
+  modeFallback: string;
+  error: string;
+  emptyState: string;
+  examples: string[];
+};
 
-export function AskPanel() {
-  const [question, setQuestion] = useState<string>(examples[0]);
+export function AskPanel({ labels }: { labels: AskPanelLabels }) {
+  const [question, setQuestion] = useState<string>(labels.examples[0] ?? "");
   const [answer, setAnswer] = useState("");
   const [mode, setMode] = useState<"ai" | "fallback" | "idle">("idle");
   const [error, setError] = useState("");
@@ -32,7 +40,7 @@ export function AskPanel() {
       });
 
       if (!response.ok) {
-        setError("The ask endpoint could not answer right now.");
+        setError(labels.error);
         return;
       }
 
@@ -46,7 +54,7 @@ export function AskPanel() {
     <div className="border-border/70 bg-card/55 rounded-md border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-6">
       <div className="space-y-2">
         <label htmlFor="portfolio-question" className="text-sm font-medium">
-          Ask about this developer
+          {labels.panelLabel}
         </label>
         <textarea
           id="portfolio-question"
@@ -54,15 +62,13 @@ export function AskPanel() {
           onChange={(event) => setQuestion(event.target.value)}
           rows={4}
           className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full resize-none rounded-md border px-3 py-3 text-sm leading-6 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-          placeholder="Ask about experience, projects, stack, or recent activity"
+          placeholder={labels.placeholder}
         />
-        <p className="text-muted-foreground text-xs">
-          Answers are constrained to indexed portfolio data and config content.
-        </p>
+        <p className="text-muted-foreground text-xs">{labels.helper}</p>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {examples.map((example) => (
+        {labels.examples.map((example) => (
           <button
             key={example}
             type="button"
@@ -81,7 +87,7 @@ export function AskPanel() {
           disabled={isPending}
           className="rounded-md active:translate-y-px"
         >
-          {isPending ? "Asking" : "Ask"}
+          {isPending ? labels.asking : labels.ask}
           <SendHorizontal className="h-4 w-4" />
         </Button>
       </div>
@@ -99,14 +105,11 @@ export function AskPanel() {
           <div className="space-y-3">
             <p className="text-sm leading-6">{answer}</p>
             <p className="text-muted-foreground font-mono text-xs uppercase">
-              Mode: {mode === "ai" ? "AI provider" : "local fallback"}
+              {labels.modeLabel}: {mode === "ai" ? labels.modeAi : labels.modeFallback}
             </p>
           </div>
         ) : (
-          <p className="text-muted-foreground text-sm leading-6">
-            Submit a question to query the indexed profile, projects, commits, releases, skills, and
-            experience.
-          </p>
+          <p className="text-muted-foreground text-sm leading-6">{labels.emptyState}</p>
         )}
       </div>
     </div>

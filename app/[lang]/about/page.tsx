@@ -2,13 +2,19 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SiteShell } from "@/components/portfolio/site-shell";
-import { hasLocale, type Locale } from "@/lib/dictionaries";
+import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
 import { portfolioConfig } from "@/portfolio.config";
 
-export const metadata: Metadata = {
-  title: "About",
-  description: "Resume-style profile generated from portfolio configuration.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  if (!hasLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return { title: dict.nav.about, description: portfolioConfig.tagline[lang] };
+}
 
 export default async function AboutPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -16,6 +22,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
   if (!portfolioConfig.features.about) notFound();
 
   const locale = lang as Locale;
+  const dict = await getDictionary(locale);
 
   return (
     <SiteShell locale={locale}>
@@ -37,12 +44,14 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
 
         <div className="space-y-10">
           <section>
-            <p className="text-muted-foreground font-mono text-xs uppercase">Profile</p>
+            <p className="text-muted-foreground font-mono text-xs uppercase">
+              {dict.about.profile}
+            </p>
             <p className="mt-3 max-w-3xl text-base leading-7">{portfolioConfig.bio[locale]}</p>
           </section>
 
           <section>
-            <p className="text-muted-foreground font-mono text-xs uppercase">Skills</p>
+            <p className="text-muted-foreground font-mono text-xs uppercase">{dict.about.skills}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               {portfolioConfig.skills.map((skill) => (
                 <span
@@ -56,7 +65,9 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
           </section>
 
           <section>
-            <p className="text-muted-foreground font-mono text-xs uppercase">Experience</p>
+            <p className="text-muted-foreground font-mono text-xs uppercase">
+              {dict.about.experience}
+            </p>
             <div className="border-border/70 mt-4 divide-y overflow-hidden rounded-md border">
               {portfolioConfig.experience.map((item) => (
                 <article key={`${item.company}-${item.period}`} className="bg-card/45 p-5">
