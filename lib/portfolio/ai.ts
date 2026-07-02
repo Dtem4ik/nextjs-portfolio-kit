@@ -1,4 +1,6 @@
 import "server-only";
+import { streamText } from "ai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { portfolioConfig } from "@/portfolio.config";
 import { buildAskContext, getPortfolioData } from "@/lib/portfolio/data";
 import type { ActivityItem, PortfolioCommit, PortfolioProject } from "@/lib/portfolio/types";
@@ -205,6 +207,37 @@ export async function askPortfolio(question: string): Promise<AskResult> {
   }
 
   return fallbackAnswer(cleanQuestion, context);
+}
+
+/**
+ * Streaming Ask response for the API route. Gemini streams token-by-token via
+ * the Vercel AI SDK; other providers (or a missing key) return a plain-text
+ * body so the client can read both the same way. Answer is Markdown.
+ */
+export async function createAskResponse(question: string): Promise<Response> {
+  const cleanQuestion = question.trim().slice(0, 1000);
+  const data = await getPortfolioData();
+  const context = buildAskContext(data);
+  const textHeaders = { "Content-Type": "text/plain; charset=utf-8" };
+
+  if (!isAiConfigured() || !cleanQuestion) {
+    return new Response(fallbackAnswer(cleanQuestion, context).answer, { headers: textHeaders });
+  }
+
+  if (portfolioConfig.ai.provider === "gemini") {
+    const google = createGoogleGenerativeAI({ apiKey: process.env.GEMINI_API_KEY });
+    const result = streamText({
+      model: google(portfolioConfig.ai.model),
+      system: SYSTEM_PROMPT,
+      temperature: portfolioConfig.ai.temperature,
+      prompt: `Portfolio context:\n${context}\n\nQuestion: ${cleanQuestion}`,
+    });
+    return result.toTextStreamResponse();
+  }
+
+  // openai / anthropic — non-streamed, via the existing REST path.
+  const result = await askPortfolio(cleanQuestion);
+  return new Response(result.answer, { headers: textHeaders });
 }
 
 // ---------------------------------------------------------------------------

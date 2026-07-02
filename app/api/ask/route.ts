@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { askPortfolio } from "@/lib/portfolio/ai";
+import { createAskResponse } from "@/lib/portfolio/ai";
 import { portfolioConfig } from "@/portfolio.config";
 
 // Basic in-memory rate limit. This is per-server-instance (not shared across
@@ -39,6 +39,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Question is required." }, { status: 400 });
   }
 
-  const result = await askPortfolio(question);
-  return NextResponse.json(result);
+  // Streams the answer (Gemini via Vercel AI SDK) as a plain text/markdown body.
+  return createAskResponse(question);
 }

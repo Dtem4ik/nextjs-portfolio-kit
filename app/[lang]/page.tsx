@@ -30,7 +30,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
   // Only load portfolio data for the sections that are actually shown.
   const showFeed = features.projects || features.activity;
   const data = showFeed ? await getPortfolioData(locale) : null;
-  const featuredProjects = data?.projects.slice(0, 2) ?? [];
+  const featuredProjects = data?.projects.slice(0, 3) ?? [];
 
   const contactLinks = portfolioConfig.contact.filter((item) => item.href);
 

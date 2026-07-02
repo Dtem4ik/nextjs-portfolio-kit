@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { SendHorizontal } from "lucide-react";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 
 export type AskPanelLabels = {
@@ -10,45 +12,74 @@ export type AskPanelLabels = {
   helper: string;
   ask: string;
   asking: string;
-  modeLabel: string;
-  modeAi: string;
-  modeFallback: string;
   error: string;
   emptyState: string;
   examples: string[];
 };
 
+const markdownComponents: Components = {
+  p: ({ children }) => <p className="leading-6">{children}</p>,
+  ul: ({ children }) => <ul className="list-disc space-y-1 pl-5">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal space-y-1 pl-5">{children}</ol>,
+  li: ({ children }) => <li className="leading-6">{children}</li>,
+  strong: ({ children }) => <strong className="text-foreground font-semibold">{children}</strong>,
+  em: ({ children }) => <em className="italic">{children}</em>,
+  a: ({ href, children }) => (
+    <a href={href} className="underline underline-offset-2" target="_blank" rel="noreferrer">
+      {children}
+    </a>
+  ),
+  code: ({ children }) => (
+    <code className="bg-muted rounded px-1 py-0.5 font-mono text-xs">{children}</code>
+  ),
+  h1: ({ children }) => <h3 className="text-foreground font-semibold">{children}</h3>,
+  h2: ({ children }) => <h3 className="text-foreground font-semibold">{children}</h3>,
+  h3: ({ children }) => <h3 className="text-foreground font-semibold">{children}</h3>,
+};
+
 export function AskPanel({ labels }: { labels: AskPanelLabels }) {
   const [question, setQuestion] = useState<string>(labels.examples[0] ?? "");
   const [answer, setAnswer] = useState("");
-  const [mode, setMode] = useState<"ai" | "fallback" | "idle">("idle");
-  const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
 
-  function submitAsk(nextQuestion = question) {
+  async function submitAsk(nextQuestion = question) {
     const cleanQuestion = nextQuestion.trim();
-    if (!cleanQuestion) return;
+    if (!cleanQuestion || status === "loading") return;
 
-    setError("");
     setQuestion(cleanQuestion);
+    setAnswer("");
+    setStatus("loading");
 
-    startTransition(async () => {
+    try {
       const response = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: cleanQuestion }),
       });
 
-      if (!response.ok) {
-        setError(labels.error);
+      if (!response.ok || !response.body) {
+        setStatus("error");
         return;
       }
 
-      const payload = (await response.json()) as { answer: string; mode: "ai" | "fallback" };
-      setAnswer(payload.answer);
-      setMode(payload.mode);
-    });
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+        setAnswer(accumulated);
+      }
+
+      setStatus("idle");
+    } catch {
+      setStatus("error");
+    }
   }
+
+  const isLoading = status === "loading";
 
   return (
     <div className="border-border/70 bg-card/55 rounded-md border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-6">
@@ -73,7 +104,8 @@ export function AskPanel({ labels }: { labels: AskPanelLabels }) {
             key={example}
             type="button"
             onClick={() => submitAsk(example)}
-            className="border-border/70 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md border px-2.5 py-1.5 text-xs transition-colors active:translate-y-px"
+            disabled={isLoading}
+            className="border-border/70 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md border px-2.5 py-1.5 text-xs transition-colors active:translate-y-px disabled:opacity-50"
           >
             {example}
           </button>
@@ -84,29 +116,31 @@ export function AskPanel({ labels }: { labels: AskPanelLabels }) {
         <Button
           type="button"
           onClick={() => submitAsk()}
-          disabled={isPending}
+          disabled={isLoading}
           className="rounded-md active:translate-y-px"
         >
-          {isPending ? labels.asking : labels.ask}
+          {isLoading ? labels.asking : labels.ask}
           <SendHorizontal className="h-4 w-4" />
         </Button>
       </div>
 
       <div className="border-border/70 bg-background/60 mt-6 min-h-32 rounded-md border p-4">
-        {isPending ? (
+        {status === "error" ? (
+          <p className="text-destructive text-sm">{labels.error}</p>
+        ) : answer ? (
+          <div className="space-y-3 text-sm leading-6">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+              {answer}
+            </ReactMarkdown>
+            {isLoading && (
+              <span className="bg-foreground/70 inline-block h-4 w-1.5 animate-pulse align-middle" />
+            )}
+          </div>
+        ) : isLoading ? (
           <div className="space-y-3">
             <div className="bg-muted h-3 w-5/6 animate-pulse rounded-sm" />
             <div className="bg-muted h-3 w-4/6 animate-pulse rounded-sm" />
             <div className="bg-muted h-3 w-3/6 animate-pulse rounded-sm" />
-          </div>
-        ) : error ? (
-          <p className="text-destructive text-sm">{error}</p>
-        ) : answer ? (
-          <div className="space-y-3">
-            <p className="text-sm leading-6">{answer}</p>
-            <p className="text-muted-foreground font-mono text-xs uppercase">
-              {labels.modeLabel}: {mode === "ai" ? labels.modeAi : labels.modeFallback}
-            </p>
           </div>
         ) : (
           <p className="text-muted-foreground text-sm leading-6">{labels.emptyState}</p>
