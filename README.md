@@ -1,24 +1,34 @@
+<div align="center">
+
 # Next.js AI Portfolio Kit
 
-An open-source developer portfolio system that anyone can fork, deploy to Vercel, edit one config file, and get a live engineering profile.
+**Turn your GitHub commits into a live, bilingual engineering profile** — with AI-written changelog news, a grounded "Ask", and everything driven by one config file.
 
-This is not a static resume. The app turns selected GitHub repositories into project pages, readable engineering activity, changelog-style updates, and grounded portfolio Q&A.
+![Next.js 16](https://img.shields.io/badge/Next.js_16-000?style=for-the-badge&logo=next.js&logoColor=white)
+![React 19](https://img.shields.io/badge/React_19-149ECA?style=for-the-badge&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind v4](https://img.shields.io/badge/Tailwind_v4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Vercel AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-000?style=for-the-badge&logo=vercel&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+[**🔗 Live demo**](https://dtem4ik.dev) &nbsp;·&nbsp; [**🚀 Deploy your own**](#deploy-your-own) &nbsp;·&nbsp; [**🩺 Troubleshooting**](#-troubleshooting)
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Dtem4ik/nextjs-portfolio-kit&env=GEMINI_API_KEY,NEXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,CRON_SECRET,GITHUB_TOKEN&envDescription=All%20optional%20%E2%80%94%20leave%20blank%20to%20run%20on%20config%20data%20only)
 
-> One-click deploy gives you a working site immediately (it renders from `portfolio.config.ts`). It shows the template owner's data until you edit the config — see **Make it yours** below. AI news + Ask and the Supabase cache light up once you add the matching env vars.
+</div>
 
-## What It Includes
+> One-click deploy gives you a working site immediately (it renders from `portfolio.config.ts`). It shows the template owner's data until you edit the config — see **Deploy your own** below. AI news + Ask and the Supabase cache light up once you add the matching env vars.
 
-- Next.js 16 App Router, React 19, TypeScript strict mode
-- Tailwind CSS v4 with CSS-first OKLCH tokens
-- Single source of truth in `portfolio.config.ts`
-- GitHub API project import for selected repositories
-- Activity feed that turns commits and releases into readable updates
-- AI "Ask" endpoint grounded in indexed portfolio data — streamed via the Vercel AI SDK, rendered as Markdown (Gemini by default; OpenAI/Anthropic supported)
-- AI changelog: recent commits become dated, per-locale news entries
-- Optional Supabase snapshot cache (read-through, ISR-cached) refreshed by a Vercel Cron
-- Full i18n (en/ru), SEO metadata, sitemap, robots, dynamic OG image, JSON-LD Person schema
+## ✨ What's Inside
+
+- ⚡ Next.js 16 App Router, React 19, TypeScript strict mode
+- 🎨 Tailwind CSS v4 with CSS-first OKLCH tokens + dark mode
+- 🧩 Single source of truth in `portfolio.config.ts`
+- 🐙 GitHub API import — project stats, commits, releases pulled live
+- 📰 **AI changelog** — recent commits become dated, per-locale news entries
+- 💬 **AI "Ask"** — grounded Q&A, streamed via the Vercel AI SDK, rendered as Markdown (Gemini by default; OpenAI/Anthropic supported)
+- 🗄️ Optional Supabase snapshot cache (read-through, ISR-cached) refreshed by a Vercel Cron
+- 🌍 Full i18n (en/ru), SEO metadata, sitemap, robots, dynamic OG image, JSON-LD Person schema
 
 ## Deploy Your Own
 
@@ -74,7 +84,7 @@ The signature feature: your commits become dated news, plus a grounded Q&A. Need
 
 > This repo ships configured as the author's live portfolio (all pages + integrations enabled, pointing at `github.com/Dtem4ik`). After forking, at minimum change the identity fields and `github.username`.
 
-## Features & Integrations
+## ⚙️ Features & Integrations
 
 Each toggle is opt-in. With an integration off — or its keys missing — pages fall back to the data in `portfolio.config.ts`, so the site always renders. The snippets below show the schema (in this repo they are enabled):
 
@@ -107,7 +117,7 @@ const projects = [{ repo: "your-repo", slug: "your-repo", stack: ["Next.js"] }];
 
 Data resolution order at request time: **fresh Supabase snapshot → live GitHub API → config fallback.** The `/api/cron/sync` job fetches fresh from GitHub and writes the snapshot Supabase serves.
 
-## Environment Variables
+## 🔑 Environment Variables
 
 All optional — add only the keys for integrations you enable.
 
@@ -126,7 +136,7 @@ CRON_SECRET=                  # Bearer secret protecting /api/cron/sync
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY` in client code.
 
-## GitHub Setup
+## 🐙 GitHub Setup
 
 1. Create a fine-grained GitHub token with read-only access to public repositories.
 2. Add it as `GITHUB_TOKEN` in `.env.local` and Vercel project settings.
@@ -134,7 +144,7 @@ Do not expose `SUPABASE_SERVICE_ROLE_KEY` in client code.
 
 The data layer fetches repository stats, languages, latest commits, and releases. If GitHub is unavailable, the app uses the fallback content from config. The AI changelog turns the last `newsPerProject` commits of each project into dated news entries (per locale).
 
-## Supabase Setup
+## 🗄️ Supabase Setup
 
 1. Create a Supabase project.
 2. Open SQL Editor.
@@ -154,7 +164,7 @@ Tables included:
 
 The app writes through Supabase REST, so no Supabase client dependency is required for the initial template.
 
-## AI Setup
+## 🤖 AI Setup
 
 The AI integration powers two things, both governed by `integrations.ai`:
 
@@ -171,7 +181,7 @@ With no key configured, Ask returns a deterministic local fallback and no AI new
 
 The AI changelog requires Supabase + the cron job: the cron generates and stores the news; pages read it from the cached snapshot.
 
-## Vercel Cron
+## ⏰ Vercel Cron
 
 `vercel.json` runs the sync once a day (the Vercel Hobby plan allows one cron run per day; upgrade for more frequent schedules):
 
@@ -189,7 +199,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" https://your-domain.com/api/cron/sy
 
 Each run generates AI news only for **new** commits (already-processed ones are skipped), so the daily job is cheap and the feed grows over time.
 
-## Pages
+## 📄 Pages
 
 - `/` - live developer dashboard
 - `/projects` - GitHub-powered project index
@@ -200,7 +210,7 @@ Each run generates AI news only for **new** commits (already-processed ones are 
 
 Locale-prefixed routes are also generated for configured non-default locales.
 
-## Commands
+## 🧰 Commands
 
 ```bash
 pnpm dev
@@ -210,7 +220,7 @@ pnpm format
 pnpm typecheck
 ```
 
-## Project Structure
+## 🗂️ Project Structure
 
 ```text
 app/
@@ -234,7 +244,7 @@ portfolio.config.ts
 vercel.json
 ```
 
-## Troubleshooting
+## 🩺 Troubleshooting
 
 - **Site shows the template owner's name / repos** — you haven't changed `name` and `integrations.github.username` in `portfolio.config.ts`.
 - **No AI news appear** — check, in order: `GEMINI_API_KEY` is set (Production); `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` are set; you ran `docs/supabase-schema.sql`; you triggered `/api/cron/sync`. Cron runs only on production and once per day on the Hobby plan.
@@ -243,6 +253,16 @@ vercel.json
 - **Gemini 429 / empty answer** — your key may lack quota for the configured model. Change `integrations.ai.model` (e.g. `gemini-2.5-flash-lite`); the built-in fallback chain also tries alternates.
 - **Updated photo still shows the old one** — image URLs are cached; rename the file (e.g. `avatar-2.jpeg`) and update `avatar` in the config.
 
-## License
+## 📜 License
 
 MIT
+
+---
+
+<div align="center">
+
+[↑ Back to top](#nextjs-ai-portfolio-kit)
+
+Made with ❤️ by [Dtem4ik](https://github.com/Dtem4ik)
+
+</div>
