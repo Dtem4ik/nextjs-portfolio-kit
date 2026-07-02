@@ -70,6 +70,7 @@ export default async function OgImage({ params }: { params: Promise<{ lang: Loca
       {avatar ? (
         <img
           src={avatar}
+          alt={name}
           width={340}
           height={340}
           style={{
