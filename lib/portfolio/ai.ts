@@ -1,7 +1,7 @@
 import "server-only";
 import { portfolioConfig } from "@/portfolio.config";
 import { buildAskContext, getPortfolioData } from "@/lib/portfolio/data";
-import type { ActivityItem, PortfolioProject } from "@/lib/portfolio/types";
+import type { ActivityItem, PortfolioCommit, PortfolioProject } from "@/lib/portfolio/types";
 
 type AskResult = {
   answer: string;
@@ -311,19 +311,20 @@ function parseChangelogDraft(raw: string): ChangelogDraft | null {
   }
 }
 
-async function generateProjectChangelog(
+function changelogId(slug: string, sha: string, locale: string) {
+  return `${slug}-changelog-${sha}-${locale}`;
+}
+
+async function generateCommitNews(
   project: PortfolioProject,
+  commit: PortfolioCommit,
   locale: string,
 ): Promise<ActivityItem | null> {
-  const commits = project.latestCommits.slice(0, 6);
-  if (commits.length === 0) return null;
-
   const user = [
     `Project: ${project.name}`,
     `Description: ${project.description}`,
     `Stack: ${project.stack.join(", ")}`,
-    "Recent commits:",
-    ...commits.map((commit) => `- ${commit.message}`),
+    `Commit message: ${commit.message}`,
   ].join("\n");
 
   const language = LANGUAGE_NAMES[locale] ?? "English";
@@ -334,31 +335,61 @@ async function generateProjectChangelog(
   if (!draft) return null;
 
   return {
-    id: `${project.slug}-changelog-${commits[0].sha}-${locale}`,
+    id: changelogId(project.slug, commit.sha, locale),
     projectSlug: project.slug,
     projectName: project.name,
     title: draft.headline,
     summary: draft.body,
-    date: commits[0].date,
-    href: project.sourceUrl,
+    date: commit.date,
+    href: commit.url,
     type: "changelog",
     tags: draft.tags,
     locale,
   };
 }
 
+/** Run async tasks with a small concurrency cap to respect provider rate limits. */
+async function mapPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = [];
+  let cursor = 0;
+  async function worker() {
+    while (cursor < items.length) {
+      const index = cursor++;
+      results[index] = await fn(items[index]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
 /**
- * Generate one AI news/changelog entry per project per supported locale (best
- * effort). Projects/locales that fail generation are simply skipped.
+ * Generate one AI news entry per recent commit, per supported locale. Commits
+ * whose entry id already exists in `existingIds` are skipped, so a backfill
+ * runs once and later syncs only touch new commits. Merge commits are ignored.
  */
 export async function generateChangelogActivity(
   projects: PortfolioProject[],
+  existingIds: Set<string> = new Set(),
 ): Promise<ActivityItem[]> {
   if (!isAiConfigured()) return [];
 
-  const jobs = portfolioConfig.locale.supported.flatMap((locale) =>
-    projects.map((project) => generateProjectChangelog(project, locale)),
+  const perProject = portfolioConfig.ai.newsPerProject;
+  const jobs: { project: PortfolioProject; commit: PortfolioCommit; locale: string }[] = [];
+
+  for (const locale of portfolioConfig.locale.supported) {
+    for (const project of projects) {
+      const commits = project.latestCommits
+        .filter((commit) => !commit.message.startsWith("Merge "))
+        .slice(0, perProject);
+      for (const commit of commits) {
+        if (existingIds.has(changelogId(project.slug, commit.sha, locale))) continue;
+        jobs.push({ project, commit, locale });
+      }
+    }
+  }
+
+  const items = await mapPool(jobs, 4, (job) =>
+    generateCommitNews(job.project, job.commit, job.locale),
   );
-  const items = await Promise.all(jobs);
   return items.filter((item): item is ActivityItem => item !== null);
 }

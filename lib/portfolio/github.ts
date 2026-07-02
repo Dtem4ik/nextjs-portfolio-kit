@@ -88,14 +88,15 @@ function humanizeCommit(message: string) {
 }
 
 export function fallbackProjectFromConfig(project: (typeof portfolioConfig.projects)[number]) {
-  const commits = project.fallbackCommits.map(
+  const stack = project.stack ?? [];
+  const commits = (project.fallbackCommits ?? []).map(
     (commit): PortfolioCommit => ({
       ...commit,
       summary: humanizeCommit(commit.message),
     }),
   );
 
-  const releases = project.fallbackReleases.map(
+  const releases = (project.fallbackReleases ?? []).map(
     (release): PortfolioRelease => ({
       tagName: release.tagName,
       name: release.name,
@@ -107,22 +108,22 @@ export function fallbackProjectFromConfig(project: (typeof portfolioConfig.proje
   return {
     slug: project.slug,
     repo: project.repo,
-    name: project.name,
-    description: project.description,
-    stack: [...project.stack],
-    languages: [...project.stack.slice(0, 4)],
+    name: project.name ?? project.repo,
+    description: project.description ?? "",
+    stack: [...stack],
+    languages: stack.slice(0, 4),
     stats: {
-      stars: project.fallbackStats.stars,
-      forks: project.fallbackStats.forks,
-      watchers: project.fallbackStats.watchers,
-      openIssues: project.fallbackStats.openIssues,
+      stars: project.fallbackStats?.stars ?? 0,
+      forks: project.fallbackStats?.forks ?? 0,
+      watchers: project.fallbackStats?.watchers ?? 0,
+      openIssues: project.fallbackStats?.openIssues ?? 0,
     },
     latestCommits: commits,
     releases,
     liveDemoUrl: project.liveDemoUrl,
     homepageUrl: project.homepageUrl,
     sourceUrl: `${portfolioConfig.social.github}/${project.repo}`,
-    aiSummary: project.aiSummary,
+    aiSummary: project.aiSummary ?? project.description ?? "",
     updatedAt: commits[0]?.date,
   } satisfies PortfolioProject;
 }
@@ -136,23 +137,33 @@ export async function fetchGitHubProject(
   // When the GitHub integration is disabled, render straight from config data.
   if (!portfolioConfig.github.enabled) return fallback;
 
+  const perPage = Math.max(portfolioConfig.ai.newsPerProject + 5, 10);
+
   try {
     const [repo, commits, releases, languages] = await Promise.all([
       githubFetch<GitHubRepository>(`/repos/${username}/${project.repo}`),
-      githubFetch<GitHubCommit[]>(`/repos/${username}/${project.repo}/commits?per_page=6`),
+      githubFetch<GitHubCommit[]>(`/repos/${username}/${project.repo}/commits?per_page=${perPage}`),
       githubFetch<GitHubRelease[]>(`/repos/${username}/${project.repo}/releases?per_page=4`),
       githubFetch<GitHubLanguageMap>(`/repos/${username}/${project.repo}/languages`),
     ]);
+
+    const configStack = project.stack ?? [];
+    const githubLanguages = Object.keys(languages);
 
     return {
       slug: project.slug,
       repo: project.repo,
       name: project.name || repo.name,
-      description: repo.description || project.description,
-      stack: [...project.stack],
-      languages: Object.keys(languages).length
-        ? Object.keys(languages)
-        : [repo.language, ...project.stack]
+      description: repo.description || project.description || "",
+      // Prefer curated stack; otherwise use GitHub languages / primary language.
+      stack: configStack.length
+        ? configStack
+        : githubLanguages.length
+          ? githubLanguages.slice(0, 5)
+          : [repo.language].filter((l): l is string => typeof l === "string"),
+      languages: githubLanguages.length
+        ? githubLanguages
+        : [repo.language, ...configStack]
             .filter((language): language is string => typeof language === "string")
             .slice(0, 5),
       stats: {
@@ -177,7 +188,7 @@ export async function fetchGitHubProject(
       liveDemoUrl: project.liveDemoUrl || repo.homepage || undefined,
       homepageUrl: project.homepageUrl || repo.homepage || undefined,
       sourceUrl: repo.html_url,
-      aiSummary: project.aiSummary || fallback.aiSummary,
+      aiSummary: project.aiSummary || repo.description || fallback.aiSummary,
       updatedAt: repo.updated_at,
     };
   } catch {

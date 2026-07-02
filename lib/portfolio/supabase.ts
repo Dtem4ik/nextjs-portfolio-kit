@@ -54,6 +54,13 @@ async function readRows<T>(table: string, query: string): Promise<T[]> {
   return (await response.json().catch(() => [])) as T[];
 }
 
+/** Ids of changelog entries already stored, so the cron skips re-generating them. */
+export async function readExistingChangelogIds(): Promise<Set<string>> {
+  if (!isSupabaseConfigured()) return new Set();
+  const rows = await readRows<{ id: string }>("activity_items", "select=id&type=eq.changelog");
+  return new Set(rows.map((row) => row.id));
+}
+
 export async function persistPortfolioSnapshot(data: PortfolioData) {
   const projects = data.projects.map((project) => ({
     slug: project.slug,
@@ -66,10 +73,12 @@ export async function persistPortfolioSnapshot(data: PortfolioData) {
     forks: project.stats.forks,
     watchers: project.stats.watchers,
     open_issues: project.stats.openIssues,
-    live_demo_url: project.liveDemoUrl,
+    // Explicit nulls: PostgREST bulk insert requires identical keys across all
+    // rows, so optional fields must be present (as null) on every project.
+    live_demo_url: project.liveDemoUrl ?? null,
     source_url: project.sourceUrl,
-    ai_summary: project.aiSummary,
-    updated_at: project.updatedAt,
+    ai_summary: project.aiSummary ?? null,
+    updated_at: project.updatedAt ?? null,
   }));
 
   const commits = data.projects.flatMap((project) =>
@@ -105,8 +114,12 @@ export async function persistPortfolioSnapshot(data: PortfolioData) {
     locale: item.locale ?? null,
   }));
 
+  // Projects must land first: commits, releases and activity_items all have a
+  // foreign key to projects(slug), so inserting them in parallel with projects
+  // can violate the FK for newly-added repos.
+  const projectsOk = await insertRows("projects", projects);
+
   const results = await Promise.all([
-    insertRows("projects", projects),
     insertRows("commits", commits),
     insertRows("releases", releases),
     insertRows("activity_items", activityItems),
@@ -116,7 +129,7 @@ export async function persistPortfolioSnapshot(data: PortfolioData) {
     ]),
   ]);
 
-  return results.every(Boolean);
+  return projectsOk && results.every(Boolean);
 }
 
 type ProjectRow = {

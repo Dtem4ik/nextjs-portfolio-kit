@@ -58,10 +58,14 @@ Disabled pages 404, drop out of the nav, and are excluded from the sitemap.
 
 ```ts
 const integrations = {
-  github: { enabled: false, username: "yourname", featuredRepositories: ["repo"] },
-  ai: { enabled: false, provider: "openai", model: "gpt-4o-mini" }, // or "anthropic"
+  github: { enabled: false, username: "yourname" },
+  ai: { enabled: false, provider: "gemini", model: "gemini-3.1-flash-lite", newsPerProject: 5 },
   supabase: { enabled: false, maxAgeMinutes: 720 }, // read-through cache; cron refreshes it
 };
+
+// Projects only need repo + slug; name, description, stack, stars, commits and
+// releases are pulled from GitHub. Optional fields override or act as fallback.
+const projects = [{ repo: "your-repo", slug: "your-repo", stack: ["Next.js"] }];
 ```
 
 Data resolution order at request time: **fresh Supabase snapshot → live GitHub API → config fallback.** The `/api/cron/sync` job fetches fresh from GitHub and writes the snapshot Supabase serves.
@@ -89,10 +93,9 @@ Do not expose `SUPABASE_SERVICE_ROLE_KEY` in client code.
 
 1. Create a fine-grained GitHub token with read-only access to public repositories.
 2. Add it as `GITHUB_TOKEN` in `.env.local` and Vercel project settings.
-3. Add repository names to `portfolioConfig.github.featuredRepositories`.
-4. Add matching project objects in `portfolioConfig.projects`.
+3. Add entries to `portfolioConfig.projects` — each just needs `repo` + `slug`.
 
-The data layer fetches repository stats, languages, latest commits, and releases. If GitHub is unavailable, the app uses the fallback content from config.
+The data layer fetches repository stats, languages, latest commits, and releases. If GitHub is unavailable, the app uses the fallback content from config. The AI changelog turns the last `newsPerProject` commits of each project into dated news entries (per locale).
 
 ## Supabase Setup
 

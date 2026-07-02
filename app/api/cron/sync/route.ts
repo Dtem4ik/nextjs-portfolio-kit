@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
-import { generateChangelogActivity } from "@/lib/portfolio/ai";
+import { generateChangelogActivity, isAiConfigured } from "@/lib/portfolio/ai";
 import { buildFreshPortfolioData } from "@/lib/portfolio/data";
-import { isSupabaseConfigured, persistPortfolioSnapshot } from "@/lib/portfolio/supabase";
+import {
+  isSupabaseConfigured,
+  persistPortfolioSnapshot,
+  readExistingChangelogIds,
+} from "@/lib/portfolio/supabase";
 
 export async function GET(request: Request) {
   // The snapshot cache is optional; there is nothing to sync without Supabase.
@@ -21,15 +25,16 @@ export async function GET(request: Request) {
 
   const data = await buildFreshPortfolioData();
 
-  // Generate AI news/changelog entries from the fresh commits. When any are
-  // produced, the public feed becomes those polished entries plus releases
-  // (raw per-commit noise is dropped); otherwise the raw activity is kept.
-  const changelog = await generateChangelogActivity(data.projects);
-  if (changelog.length > 0) {
+  let newChangelogItems = 0;
+  if (isAiConfigured()) {
+    // Only generate news for commits we haven't turned into entries yet, then
+    // make the public feed those AI entries plus releases (raw commit noise is
+    // dropped). Previously stored entries stay in the DB and still show on read.
+    const existingIds = await readExistingChangelogIds();
+    const changelog = await generateChangelogActivity(data.projects, existingIds);
+    newChangelogItems = changelog.length;
     const releases = data.activity.filter((item) => item.type === "release");
-    data.activity = [...changelog, ...releases].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
+    data.activity = [...changelog, ...releases];
   }
 
   const persisted = await persistPortfolioSnapshot(data);
@@ -39,7 +44,7 @@ export async function GET(request: Request) {
     persisted,
     source: data.source,
     projects: data.projects.length,
-    changelogItems: changelog.length,
+    newChangelogItems,
     activityItems: data.activity.length,
     generatedAt: data.generatedAt,
   });

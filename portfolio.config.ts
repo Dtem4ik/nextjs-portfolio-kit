@@ -10,13 +10,13 @@
 const name = "Artyom Friedman";
 
 const role = {
-  en: "Senior Frontend Engineer",
-  ru: "Senior Frontend Engineer",
+  en: "Frontend Engineer",
+  ru: "Frontend Engineer",
 } as const;
 
 const bio = {
-  en: "Senior Frontend Engineer · 7+ years shipping React, Next.js, TypeScript, and Tailwind in production, with a deep Vue/Nuxt background. I ship fast because AI is wired into my engineering: Claude Code at the agent layer, MCP servers, and multi-agent systems; I recently delivered an internal 8-lesson AI program for executive leadership. Open to strong product-driven teams where engineering quality and AI-native development matter.",
-  ru: "Senior Frontend Engineer · 7+ лет в продакшен-разработке на React, Next.js, TypeScript и Tailwind, с сильным бэкграундом в Vue/Nuxt. Выкатываю быстро, потому что ИИ глубоко вшит в моё инженерное мышление: Claude Code на уровне агентов, MCP-серверы и мультиагентные системы; недавно провёл внутренний курс из 8 уроков по ИИ для топ-менеджмента. Открыт к сильным продуктовым командам, где инженерное качество и AI-native-разработка важны не на словах.",
+  en: "Frontend Engineer · 7+ years shipping React, Next.js, TypeScript, and Tailwind in production, with a deep Vue/Nuxt background. I ship fast because AI is wired into my engineering: Claude Code at the agent layer, MCP servers, and multi-agent systems; I recently delivered an internal 8-lesson AI program for executive leadership. Open to strong product-driven teams where engineering quality and AI-native development matter.",
+  ru: "Frontend Engineer · 7+ лет в продакшен-разработке на React, Next.js, TypeScript и Tailwind, с сильным бэкграундом в Vue/Nuxt. Выкатываю быстро, потому что ИИ глубоко вшит в моё инженерное мышление: Claude Code на уровне агентов, MCP-серверы и мультиагентные системы; недавно провёл внутренний курс из 8 уроков по ИИ для топ-менеджмента. Открыт к сильным продуктовым командам, где инженерное качество и AI-native-разработка важны не на словах.",
 } as const;
 
 /**
@@ -25,12 +25,12 @@ const bio = {
  * full `bio` still powers the hero and the JSON-LD Person description.
  */
 const tagline = {
-  en: "Senior Frontend Engineer shipping production React, Next.js & TypeScript with AI wired into the workflow. Open to strong product teams.",
-  ru: "Senior Frontend Engineer: продакшен на React, Next.js и TypeScript с ИИ, вшитым в процесс. Открыт к сильным продуктовым командам.",
+  en: "Frontend Engineer shipping production React, Next.js & TypeScript with AI wired into the workflow. Open to strong product teams.",
+  ru: "Frontend Engineer: продакшен на React, Next.js и TypeScript с ИИ, вшитым в процесс. Открыт к сильным продуктовым командам.",
 } as const;
 
 const avatar = "/photo.jpeg";
-const location = "Almaty, Kazakhstan";
+const location = "Haifa, Israel";
 const url = "https://dtem4ik.dev";
 
 const social = {
@@ -61,8 +61,6 @@ const integrations = {
   github: {
     enabled: true,
     username: "Dtem4ik",
-    featuredRepositories: ["nextjs-portfolio-kit"],
-    includePinnedFallbacks: true,
   },
   // Powers the Ask page AND the AI changelog/news generated from commits.
   // Provider "gemini" uses Google AI Studio's free tier (GEMINI_API_KEY).
@@ -76,6 +74,8 @@ const integrations = {
     fallbackModels: ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite"],
     temperature: 0.4,
     maxInputItems: 48,
+    // How many recent commits per project become individual news entries.
+    newsPerProject: 5,
   },
   // Read-through cache: the cron job fetches from GitHub, generates the AI news,
   // and writes a snapshot to Supabase; pages then read that snapshot instead of
@@ -127,49 +127,47 @@ const contact = [
   { label: "Email", href: social.email ? `mailto:${social.email}` : "" },
 ] as const;
 
-const projects = [
+// A project only needs `repo` + `slug`. Everything else (name, description,
+// languages/stack, stars, commits, releases) is pulled live from GitHub. The
+// optional fields below override the GitHub data or serve as fallbacks when the
+// GitHub fetch fails.
+type ProjectConfig = {
+  repo: string;
+  slug: string;
+  name?: string;
+  description?: string;
+  liveDemoUrl?: string;
+  homepageUrl?: string;
+  stack?: string[];
+  featured?: boolean;
+  aiSummary?: string;
+  fallbackStats?: { stars: number; forks: number; watchers: number; openIssues: number };
+  fallbackCommits?: { sha: string; message: string; date: string; url: string }[];
+  fallbackReleases?: { tagName: string; name: string; publishedAt: string; url: string }[];
+};
+
+const projects: ProjectConfig[] = [
+  {
+    repo: "genwidget-ai",
+    slug: "genwidget-ai",
+    stack: ["Next.js", "TypeScript", "AI"],
+  },
   {
     repo: "nextjs-portfolio-kit",
     slug: "nextjs-portfolio-kit",
-    name: "Next.js Portfolio Kit",
-    description:
-      "A forkable AI-powered developer portfolio template that turns GitHub activity into a live engineering profile.",
+    name: "Next.js AI Portfolio Kit",
     liveDemoUrl: url,
-    homepageUrl: url,
-    stack: ["Next.js", "React", "TypeScript", "Tailwind CSS", "GitHub API", "Supabase"],
+    stack: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase"],
     featured: true,
     aiSummary:
-      "A reusable portfolio system designed for developers who want a live profile instead of a static resume. It centralizes personal data in one config file, syncs selected GitHub repositories, and prepares AI summaries from indexed portfolio data.",
-    fallbackStats: {
-      stars: 18,
-      forks: 3,
-      watchers: 4,
-      openIssues: 2,
-    },
-    fallbackCommits: [
-      {
-        sha: "local-activity-1",
-        message: "Add AI portfolio data model",
-        date: "2026-06-20T09:30:00.000Z",
-        url: "https://github.com/Dtem4ik/nextjs-portfolio-kit",
-      },
-      {
-        sha: "local-activity-2",
-        message: "Improve activity feed copy",
-        date: "2026-06-18T14:10:00.000Z",
-        url: "https://github.com/Dtem4ik/nextjs-portfolio-kit",
-      },
-    ],
-    fallbackReleases: [
-      {
-        tagName: "v0.1.0",
-        name: "Template foundation",
-        publishedAt: "2026-06-21T12:00:00.000Z",
-        url: "https://github.com/Dtem4ik/nextjs-portfolio-kit/releases",
-      },
-    ],
+      "A forkable AI-powered developer portfolio: edit one config file, deploy to Vercel, and your GitHub activity becomes a live engineering profile with AI-written changelog news.",
   },
-] as const;
+  {
+    repo: "carswash-new-mono",
+    slug: "carswash-new-mono",
+    stack: ["TypeScript", "Monorepo"],
+  },
+];
 
 const keywords = {
   en: [
