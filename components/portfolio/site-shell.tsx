@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Github, Linkedin, Mail } from "lucide-react";
 import { LangToggle } from "@/components/lang-toggle";
 import { ModeToggle } from "@/components/mode-toggle";
+import { PageTransition } from "@/components/portfolio/page-transition";
 import { Button } from "@/components/ui/button";
 import { getDictionary, type Locale } from "@/lib/dictionaries";
 import { portfolioConfig } from "@/portfolio.config";
@@ -116,7 +117,7 @@ export async function SiteShell({
         </header>
 
         <main id="main" className="flex-1 py-10 sm:py-14">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
       </div>
     </div>
