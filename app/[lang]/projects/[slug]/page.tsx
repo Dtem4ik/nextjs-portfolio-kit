@@ -71,7 +71,9 @@ export default async function ProjectPage({
           <p className="text-muted-foreground mt-4 max-w-3xl text-base leading-7">
             {project.description}
           </p>
-          <p className="mt-6 max-w-3xl text-sm leading-7">{project.aiSummary}</p>
+          {project.aiSummary && project.aiSummary !== project.description && (
+            <p className="mt-6 max-w-3xl text-sm leading-7">{project.aiSummary}</p>
+          )}
           <div className="mt-6 flex flex-wrap gap-2">
             {project.stack.map((item) => (
               <span

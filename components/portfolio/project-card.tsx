@@ -46,7 +46,9 @@ export async function ProjectCard({
           </div>
         </div>
 
-        <p className="text-foreground/80 text-sm leading-6">{project.aiSummary}</p>
+        {project.aiSummary && project.aiSummary !== project.description && (
+          <p className="text-foreground/80 text-sm leading-6">{project.aiSummary}</p>
+        )}
 
         <div className="flex flex-wrap gap-2">
           {project.stack.map((item) => (

@@ -8,7 +8,8 @@
     "projects": "Projects",
     "activity": "Activity",
     "about": "About",
-    "ask": "Ask"
+    "ask": "Ask",
+    "menu": "Menu"
   },
   "a11y": {
     "skipToMain": "Skip to main content"

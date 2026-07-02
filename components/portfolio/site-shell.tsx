@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Github, Linkedin, Mail } from "lucide-react";
 import { LangToggle } from "@/components/lang-toggle";
 import { ModeToggle } from "@/components/mode-toggle";
+import { MobileNav } from "@/components/portfolio/mobile-nav";
 import { PageTransition } from "@/components/portfolio/page-transition";
 import { Button } from "@/components/ui/button";
 import { getDictionary, type Locale } from "@/lib/dictionaries";
@@ -36,6 +37,10 @@ export async function SiteShell({
   children: React.ReactNode;
 }) {
   const dict = await getDictionary(locale);
+  const navLinks = navConfig.map((item) => ({
+    href: localizedHref(locale, item.href),
+    label: dict.nav[item.key],
+  }));
 
   return (
     <div className="bg-background text-foreground min-h-[100dvh]">
@@ -47,7 +52,7 @@ export async function SiteShell({
       </a>
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.08),transparent_24rem),linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:auto,48px_48px,48px_48px] dark:bg-[radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.08),transparent_24rem),linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)]" />
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">
-        <header className="border-border/70 bg-background/75 shadow-background/40 sticky top-4 flex items-center justify-between rounded-md border px-3 py-2 shadow-2xl backdrop-blur-xl">
+        <header className="border-border/70 bg-background/90 shadow-background/40 supports-backdrop-filter:bg-background/80 sticky top-4 flex items-center justify-between rounded-md border px-3 py-2 shadow-2xl backdrop-blur-xl">
           <Link
             href={localizedHref(locale, "/")}
             className="hover:bg-accent flex items-center gap-3 rounded-md px-2 py-1 transition-colors"
@@ -65,13 +70,13 @@ export async function SiteShell({
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
-            {navConfig.map((item) => (
+            {navLinks.map((item) => (
               <Link
                 key={item.href}
-                href={localizedHref(locale, item.href)}
+                href={item.href}
                 className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-md px-3 py-2 text-sm font-medium transition-colors"
               >
-                {dict.nav[item.key]}
+                {item.label}
               </Link>
             ))}
           </nav>
@@ -113,6 +118,7 @@ export async function SiteShell({
             )}
             <LangToggle />
             <ModeToggle />
+            <MobileNav items={navLinks} label={dict.nav.menu} />
           </div>
         </header>
 
