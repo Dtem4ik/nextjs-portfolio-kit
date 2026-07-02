@@ -11,12 +11,12 @@ const name = "Artyom Friedman";
 
 const role = {
   en: "Frontend Engineer",
-  ru: "Frontend Engineer",
+  ru: "Frontend-разработчик",
 } as const;
 
 const bio = {
-  en: "Frontend Engineer · 7+ years shipping React, Next.js, TypeScript, and Tailwind in production, with a deep Vue/Nuxt background. I ship fast because AI is wired into my engineering: Claude Code at the agent layer, MCP servers, and multi-agent systems; I recently delivered an internal 8-lesson AI program for executive leadership. Open to strong product-driven teams where engineering quality and AI-native development matter.",
-  ru: "Frontend Engineer · 7+ лет в продакшен-разработке на React, Next.js, TypeScript и Tailwind, с сильным бэкграундом в Vue/Nuxt. Выкатываю быстро, потому что ИИ глубоко вшит в моё инженерное мышление: Claude Code на уровне агентов, MCP-серверы и мультиагентные системы; недавно провёл внутренний курс из 8 уроков по ИИ для топ-менеджмента. Открыт к сильным продуктовым командам, где инженерное качество и AI-native-разработка важны не на словах.",
+  en: "Frontend Engineer with 7+ years of production experience across B2B SaaS, fintech, banking, and consumer products. Strong in React, Next.js, TypeScript, and Tailwind, with a deep Vue 3 / Nuxt 3 background — I own the full frontend lifecycle: architecture, CI/CD, performance, and releases. I ship fast because AI is wired deep into my daily work: Claude Code at the agent layer (hooks, MCP servers, custom skills, plugins), multi-agent systems, and an internal 8-lesson AI program I designed and delivered for executive leadership.",
+  ru: "Frontend-разработчик с 7+ годами продакшен-опыта в B2B SaaS, финтехе, банках и потребительских продуктах. Уверенно работаю с React, Next.js, TypeScript и Tailwind, с сильным бэкграундом в Vue 3 / Nuxt 3 — веду весь фронтенд-цикл: архитектуру, CI/CD, производительность и релизы. Выкатываю быстро, потому что ИИ глубоко вшит в мою работу: Claude Code на уровне агентов (hooks, MCP-серверы, кастомные скиллы, плагины), мультиагентные системы и внутренний курс из 8 уроков по ИИ, который я разработал и провёл для топ-менеджмента.",
 } as const;
 
 /**
@@ -25,8 +25,8 @@ const bio = {
  * full `bio` still powers the hero and the JSON-LD Person description.
  */
 const tagline = {
-  en: "Frontend Engineer shipping production React, Next.js & TypeScript with AI wired into the workflow. Open to strong product teams.",
-  ru: "Frontend Engineer: продакшен на React, Next.js и TypeScript с ИИ, вшитым в процесс. Открыт к сильным продуктовым командам.",
+  en: "Frontend Engineer — 7+ years in React, Next.js, TypeScript and Vue/Nuxt, with AI wired deep into the workflow. Open to strong product teams.",
+  ru: "Frontend-разработчик — 7+ лет на React, Next.js, TypeScript и Vue/Nuxt, с глубоко вшитым в процесс ИИ. Открыт к сильным продуктовым командам.",
 } as const;
 
 const avatar = "/photo.jpeg";
@@ -36,8 +36,8 @@ const url = "https://dtem4ik.dev";
 const social = {
   github: "https://github.com/Dtem4ik",
   linkedin: "https://www.linkedin.com/in/dtem4ik/",
-  email: "", // e.g. "you@example.com"
-  telegram: "", // e.g. "https://t.me/username"
+  email: "d.tem4ik@gmail.com",
+  telegram: "https://t.me/dtem4ik",
   instagram: "",
   facebook: "",
   whatsapp: "",
@@ -92,38 +92,84 @@ const integrations = {
 const github = integrations.github;
 const ai = integrations.ai;
 
+// Tech skills stay in English (proper names) in both locales.
 const skills = [
   "React",
   "Next.js",
   "TypeScript",
+  "Vue 3",
+  "Nuxt 3",
   "Tailwind CSS",
+  "shadcn/ui",
+  "TanStack Query",
+  "Redux / Pinia",
+  "React Native",
+  "Node.js",
+  "REST APIs",
+  "GitLab CI/CD",
   "Design systems",
-  "AI agents",
-  "GitHub API",
-  "Supabase",
-  "Vercel",
+  "Claude Code",
+  "MCP servers",
+  "Multi-agent systems",
 ] as const;
 
+// Work experience. `company` and `period` are shared; `role` and `summary` are
+// localized per supported locale.
 const experience = [
   {
-    company: "Product engineering teams",
-    role: "Senior Frontend Engineer",
-    period: "2017 - Present",
-    summary:
-      "Shipped production web applications across React, Next.js, Vue, Nuxt, TypeScript, and Tailwind with a focus on UX quality, maintainable architecture, and delivery speed.",
+    company: "Galereya Novostroek",
+    period: "Oct 2024 — Present",
+    role: {
+      en: "Frontend Engineer",
+      ru: "Frontend-разработчик",
+    },
+    summary: {
+      en: "Lead frontend of internal web products on Nuxt 3 / Vue integrated with Bitrix24; built the client-facing WebView app, designed the architecture from scratch, and set up GitLab CI/CD (commit → production). Embedded AI tooling into team workflows and delivered an 8-lesson AI program for executive leadership.",
+      ru: "Веду фронтенд внутренних веб-продуктов на Nuxt 3 / Vue с интеграцией в Bitrix24; собрал клиентское WebView-приложение, спроектировал архитектуру с нуля и настроил GitLab CI/CD (коммит → прод). Внедрил AI-инструменты в процессы команды и провёл курс из 8 уроков по ИИ для топ-менеджмента.",
+    },
   },
   {
-    company: "Internal AI enablement",
-    role: "AI Engineering Instructor",
-    period: "2025",
-    summary:
-      "Designed and delivered an 8-lesson AI program for executive leadership, covering agent workflows, MCP servers, and practical AI-native delivery.",
+    company: "Satya Digital Intelligence",
+    period: "Sep 2025 — Mar 2026",
+    role: {
+      en: "Lead Frontend Engineer (Contract)",
+      ru: "Lead Frontend-разработчик (контракт)",
+    },
+    summary: {
+      en: "Sole frontend engineer on a B2B SaaS platform (React, Next.js, TypeScript, Tailwind). Shipped product features, built analytics and reporting pages with data visualizations, integrated Descope authentication, and owned frontend architecture and the release process.",
+      ru: "Единственный фронтенд-инженер на B2B SaaS-платформе (React, Next.js, TypeScript, Tailwind). Выпускал фичи, делал страницы аналитики и отчётности с визуализацией данных, интегрировал аутентификацию Descope, отвечал за архитектуру фронтенда и релизы.",
+    },
+  },
+  {
+    company: "Ibec Systems",
+    period: "Nov 2019 — Jan 2025",
+    role: {
+      en: "Frontend Engineer",
+      ru: "Frontend-разработчик",
+    },
+    summary: {
+      en: "Grew from Junior to strong Middle over 5+ years, delivering frontend across marketing sites, banking and product platforms (Vue 3 / Nuxt 3, React / Next.js). Co-authored the internal nuxt3-ui-kit. Selected projects: BankRBK, Eurasia Life, Bigroup, Kino.kz.",
+      ru: "За 5+ лет вырос от Junior до крепкого Middle, делал фронтенд для промо-сайтов, банковских и продуктовых платформ (Vue 3 / Nuxt 3, React / Next.js). Соавтор внутренней библиотеки nuxt3-ui-kit. Проекты: BankRBK, Eurasia Life, Bigroup, Kino.kz.",
+    },
+  },
+  {
+    company: "Aida Service",
+    period: "Sep 2018 — Aug 2019",
+    role: {
+      en: "Junior Full-Stack Developer",
+      ru: "Junior Full-Stack разработчик",
+    },
+    summary: {
+      en: "First production role — built the aida.market site and internal SSR / SPA apps (Vue / Nuxt, Node.js). Also built two side projects: a car-wash automation system with real-time WebSockets and an accounting system for a car-parts store.",
+      ru: "Первая продакшен-роль — сделал сайт aida.market и внутренние SSR / SPA-приложения (Vue / Nuxt, Node.js). Плюс два пет-проекта: система автоматизации автомойки с реалтаймом на WebSockets и учётная система для магазина автозапчастей.",
+    },
   },
 ] as const;
 
 const contact = [
   { label: "GitHub", href: social.github },
   { label: "LinkedIn", href: social.linkedin },
+  { label: "Telegram", href: social.telegram },
   { label: "Email", href: social.email ? `mailto:${social.email}` : "" },
 ] as const;
 
@@ -171,24 +217,30 @@ const projects: ProjectConfig[] = [
 
 const keywords = {
   en: [
-    "developer portfolio",
-    "AI portfolio",
+    "Artyom Friedman",
     "frontend engineer",
     "react",
     "next.js",
     "typescript",
-    "github activity",
-    "supabase",
+    "vue",
+    "nuxt",
+    "tailwind",
+    "claude code",
+    "ai engineer",
+    "multi-agent systems",
   ],
   ru: [
-    "портфолио разработчика",
-    "AI портфолио",
+    "Артём Фридман",
     "фронтенд разработчик",
     "react",
     "next.js",
     "typescript",
-    "github activity",
-    "supabase",
+    "vue",
+    "nuxt",
+    "tailwind",
+    "claude code",
+    "ai разработчик",
+    "мультиагентные системы",
   ],
 } as const;
 

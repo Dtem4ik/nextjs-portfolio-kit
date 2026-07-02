@@ -73,13 +73,13 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
                 <article key={`${item.company}-${item.period}`} className="bg-card/45 p-5">
                   <div className="flex flex-col justify-between gap-2 sm:flex-row">
                     <div>
-                      <h2 className="font-semibold tracking-tight">{item.role}</h2>
+                      <h2 className="font-semibold tracking-tight">{item.role[locale]}</h2>
                       <p className="text-muted-foreground text-sm">{item.company}</p>
                     </div>
                     <p className="text-muted-foreground font-mono text-xs">{item.period}</p>
                   </div>
                   <p className="text-muted-foreground mt-3 max-w-3xl text-sm leading-6">
-                    {item.summary}
+                    {item.summary[locale]}
                   </p>
                 </article>
               ))}

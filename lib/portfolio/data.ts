@@ -130,7 +130,7 @@ export function buildAskContext(data: PortfolioData) {
     `Bio: ${portfolioConfig.bio.en}`,
     `Skills: ${portfolioConfig.skills.join(", ")}`,
     `Experience: ${portfolioConfig.experience
-      .map((item) => `${item.role} at ${item.company} (${item.period}): ${item.summary}`)
+      .map((item) => `${item.role.en} at ${item.company} (${item.period}): ${item.summary.en}`)
       .join(" | ")}`,
   ];
 
