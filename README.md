@@ -4,7 +4,9 @@ An open-source developer portfolio system that anyone can fork, deploy to Vercel
 
 This is not a static resume. The app turns selected GitHub repositories into project pages, readable engineering activity, changelog-style updates, and grounded portfolio Q&A.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Dtem4ik/nextjs-portfolio-kit)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Dtem4ik/nextjs-portfolio-kit&env=GEMINI_API_KEY,NEXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,CRON_SECRET,GITHUB_TOKEN&envDescription=All%20optional%20%E2%80%94%20leave%20blank%20to%20run%20on%20config%20data%20only)
+
+> One-click deploy gives you a working site immediately (it renders from `portfolio.config.ts`). It shows the template owner's data until you edit the config — see **Make it yours** below. AI news + Ask and the Supabase cache light up once you add the matching env vars.
 
 ## What It Includes
 
@@ -13,10 +15,10 @@ This is not a static resume. The app turns selected GitHub repositories into pro
 - Single source of truth in `portfolio.config.ts`
 - GitHub API project import for selected repositories
 - Activity feed that turns commits and releases into readable updates
-- Optional OpenAI-powered ask endpoint grounded in indexed portfolio data
-- Optional Supabase persistence for projects, commits, releases, activity, AI summaries, and chat logs
-- Vercel Cron route for scheduled syncs
-- SEO metadata, sitemap, robots, OG image, JSON-LD Person schema, and i18n routing
+- AI "Ask" endpoint grounded in indexed portfolio data — streamed via the Vercel AI SDK, rendered as Markdown (Gemini by default; OpenAI/Anthropic supported)
+- AI changelog: recent commits become dated, per-locale news entries
+- Optional Supabase snapshot cache (read-through, ISR-cached) refreshed by a Vercel Cron
+- Full i18n (en/ru), SEO metadata, sitemap, robots, dynamic OG image, JSON-LD Person schema
 
 ## Quick Start
 
@@ -30,16 +32,21 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Configure Your Portfolio
+## Make It Yours
 
-Edit `portfolio.config.ts`. This is the main file fork users should change:
-your name, role, bio, avatar, social links, skills, experience, and projects.
+Everything lives in **`portfolio.config.ts`** — edit that one file:
 
-Each configured project can include fallback stats, commits, releases, stack, live demo URL, and a local AI summary. The site still renders if GitHub, Supabase, or AI credentials are not configured.
+1. **Identity** — `name`, `role`, `bio`, `tagline`, `avatar` (drop your image in `/public`), `location`, `url`, `social` (email/telegram/github/linkedin), and optional `resumeUrl` (`/public/cv.pdf`).
+2. **GitHub** — set `integrations.github.username` to **your** handle, and list your repos in `projects` (each entry just needs `repo` + `slug`; everything else is pulled from GitHub).
+3. **About** — fill `skills` and the localized `experience` entries.
+4. **Toggles** — `features` (which pages exist) and `integrations` (github / ai / supabase). Disabled ⇒ page 404s and drops from nav + sitemap; missing keys ⇒ graceful fallback to config data.
+5. **Keys** (optional) — see **Environment Variables**. Without them the site still renders from config.
+
+> This repo ships configured as the author's live portfolio (all pages + integrations enabled, pointing at `github.com/Dtem4ik`). After forking, at minimum change the identity fields and `github.username`.
 
 ## Features & Integrations
 
-Everything beyond Home is opt-in. On a fresh fork only **Home + About** are enabled and the site renders entirely from `portfolio.config.ts` with **zero external keys**. Turn things on as you need them.
+Each toggle is opt-in. With an integration off — or its keys missing — pages fall back to the data in `portfolio.config.ts`, so the site always renders. The snippets below show the schema (in this repo they are enabled):
 
 `features` — which pages exist (Home is always on):
 
@@ -136,20 +143,21 @@ The AI changelog requires Supabase + the cron job: the cron generates and stores
 
 ## Vercel Cron
 
-`vercel.json` schedules:
+`vercel.json` runs the sync once a day (the Vercel Hobby plan allows one cron run per day; upgrade for more frequent schedules):
 
 ```json
 {
-  "path": "/api/cron/sync",
-  "schedule": "0 */6 * * *"
+  "crons": [{ "path": "/api/cron/sync", "schedule": "0 6 * * *" }]
 }
 ```
 
-If `CRON_SECRET` is set, call the route with:
+Cron runs only on **production** deployments and only when the Supabase env vars are set. To trigger a sync manually (e.g. right after deploy):
 
 ```bash
 curl -H "Authorization: Bearer $CRON_SECRET" https://your-domain.com/api/cron/sync
 ```
+
+Each run generates AI news only for **new** commits (already-processed ones are skipped), so the daily job is cheap and the feed grows over time.
 
 ## Pages
 
