@@ -20,27 +20,57 @@ This is not a static resume. The app turns selected GitHub repositories into pro
 - Optional Supabase snapshot cache (read-through, ISR-cached) refreshed by a Vercel Cron
 - Full i18n (en/ru), SEO metadata, sitemap, robots, dynamic OG image, JSON-LD Person schema
 
-## Quick Start
+## Deploy Your Own
+
+Three levels — do as much as you want; each builds on the previous. Level 2 already gives you a complete portfolio with **no keys required**.
+
+### Level 1 — Get it live (~2 min)
+
+- **One click:** press **Deploy with Vercel** above. Vercel forks the repo and deploys it. Leave the env prompts blank for now.
+- **Or run locally:**
 
 ```bash
 git clone https://github.com/Dtem4ik/nextjs-portfolio-kit.git
 cd nextjs-portfolio-kit
 pnpm install
 cp .env.example .env.local
-pnpm dev
+pnpm dev   # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+You now have a working site rendered from `portfolio.config.ts` — still showing the template owner's data.
 
-## Make It Yours
+### Level 2 — Make it yours (~10 min, no keys)
 
-Everything lives in **`portfolio.config.ts`** — edit that one file:
+Edit the single file **`portfolio.config.ts`**:
 
-1. **Identity** — `name`, `role`, `bio`, `tagline`, `avatar` (drop your image in `/public`), `location`, `url`, `social` (email/telegram/github/linkedin), and optional `resumeUrl` (`/public/cv.pdf`).
-2. **GitHub** — set `integrations.github.username` to **your** handle, and list your repos in `projects` (each entry just needs `repo` + `slug`; everything else is pulled from GitHub).
-3. **About** — fill `skills` and the localized `experience` entries.
-4. **Toggles** — `features` (which pages exist) and `integrations` (github / ai / supabase). Disabled ⇒ page 404s and drops from nav + sitemap; missing keys ⇒ graceful fallback to config data.
-5. **Keys** (optional) — see **Environment Variables**. Without them the site still renders from config.
+1. **Identity** — `name`, `role`, `bio`, `tagline`, `location`, `url`, `social`. Drop your photo at `/public/avatar.jpeg` and (optional) CV at `/public/cv.pdf`.
+2. **GitHub** — set `integrations.github.username` to **your** handle and list your repos in `projects` (`{ repo, slug }` is enough; name/description/stack/stars/commits come from GitHub).
+3. **About** — fill `skills` and the localized `experience` entries (en/ru).
+4. **Toggles** — turn pages on/off in `features`.
+
+Commit & push → Vercel redeploys. That's a full portfolio already.
+
+### Level 3 — Turn on AI news + Ask (~20–30 min)
+
+The signature feature: your commits become dated news, plus a grounded Q&A. Needs a **free** Gemini key; the news feed also needs a **free** Supabase database.
+
+**a) AI key — enables the Ask page:**
+
+1. Get a free key at <https://aistudio.google.com/apikey>.
+2. In Vercel → **Settings → Environment Variables**, add `GEMINI_API_KEY` (Production). Redeploy → **Ask** now answers.
+
+**b) Supabase — powers the AI news feed:**
+
+1. Create a free project at <https://supabase.com>.
+2. **SQL Editor → New query** → paste all of [`docs/supabase-schema.sql`](docs/supabase-schema.sql) → **Run**.
+3. **Settings → API** → copy the **Project URL** and the **`service_role`** key (the secret one, not `anon`).
+4. Add to Vercel (Production): `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and a random `CRON_SECRET`.
+   _If you added Supabase through the Vercel integration, the URL + key are already there — just add `GEMINI_API_KEY` and `CRON_SECRET`._
+5. Redeploy, then trigger the first sync:
+   ```bash
+   curl -H "Authorization: Bearer <CRON_SECRET>" https://<your-domain>/api/cron/sync
+   ```
+6. From then on the daily Vercel Cron re-syncs and generates news for new commits automatically.
 
 > This repo ships configured as the author's live portfolio (all pages + integrations enabled, pointing at `github.com/Dtem4ik`). After forking, at minimum change the identity fields and `github.username`.
 
@@ -203,6 +233,15 @@ docs/
 portfolio.config.ts
 vercel.json
 ```
+
+## Troubleshooting
+
+- **Site shows the template owner's name / repos** — you haven't changed `name` and `integrations.github.username` in `portfolio.config.ts`.
+- **No AI news appear** — check, in order: `GEMINI_API_KEY` is set (Production); `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` are set; you ran `docs/supabase-schema.sql`; you triggered `/api/cron/sync`. Cron runs only on production and once per day on the Hobby plan.
+- **`/api/cron/sync` returns `persisted: false`** — the schema wasn't applied, or the key you used is `anon` instead of `service_role`.
+- **Ask replies but the feed is empty** — Ask needs only the AI key; the news feed additionally needs Supabase + a sync.
+- **Gemini 429 / empty answer** — your key may lack quota for the configured model. Change `integrations.ai.model` (e.g. `gemini-2.5-flash-lite`); the built-in fallback chain also tries alternates.
+- **Updated photo still shows the old one** — image URLs are cached; rename the file (e.g. `avatar-2.jpeg`) and update `avatar` in the config.
 
 ## License
 
