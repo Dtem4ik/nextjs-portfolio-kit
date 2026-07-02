@@ -38,9 +38,11 @@ export default async function ProjectsPage({ params }: { params: Promise<{ lang:
         <p className="text-muted-foreground mt-4 text-base leading-7">{dict.projects.intro}</p>
       </section>
 
-      <section className="mt-10 grid gap-4 lg:grid-cols-2">
+      <section className="mt-10 columns-1 gap-x-4 md:columns-2">
         {data.projects.map((project) => (
-          <ProjectCard key={project.slug} project={project} locale={locale} />
+          <div key={project.slug} className="mb-4 break-inside-avoid">
+            <ProjectCard project={project} locale={locale} />
+          </div>
         ))}
       </section>
     </SiteShell>

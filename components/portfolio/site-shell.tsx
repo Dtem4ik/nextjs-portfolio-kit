@@ -52,7 +52,7 @@ export async function SiteShell({
       </a>
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.08),transparent_24rem),linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:auto,48px_48px,48px_48px] dark:bg-[radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.08),transparent_24rem),linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)]" />
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">
-        <header className="border-border/70 bg-background/90 shadow-background/40 supports-backdrop-filter:bg-background/80 sticky top-4 flex items-center justify-between rounded-md border px-3 py-2 shadow-2xl backdrop-blur-xl">
+        <header className="border-border bg-background sticky top-4 z-50 flex items-center justify-between rounded-md border px-3 py-2 shadow-lg">
           <Link
             href={localizedHref(locale, "/")}
             className="hover:bg-accent flex items-center gap-3 rounded-md px-2 py-1 transition-colors"
