@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowUpRight, MapPin } from "lucide-react";
+import { ArrowUpRight, Download, MapPin } from "lucide-react";
 import { ActivityList } from "@/components/portfolio/activity-list";
 import { MetricStrip } from "@/components/portfolio/metric-strip";
 import { ProjectCard } from "@/components/portfolio/project-card";
@@ -93,6 +93,14 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
             {features.ask && (
               <Button asChild variant="outline" className="rounded-md">
                 <Link href={localizedHref(locale, "/ask")}>{dict.home.askCta}</Link>
+              </Button>
+            )}
+            {portfolioConfig.resumeUrl && (
+              <Button asChild variant="outline" className="rounded-md">
+                <a href={portfolioConfig.resumeUrl} download>
+                  {dict.home.downloadCv}
+                  <Download className="h-4 w-4" />
+                </a>
               </Button>
             )}
           </div>

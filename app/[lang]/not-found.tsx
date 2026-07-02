@@ -15,12 +15,13 @@ export default function NotFound() {
   const msg = messages[lang] ?? messages.en;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 text-center">
-      <h1 className="text-6xl font-bold tracking-tight">{msg.title}</h1>
-      <p className="text-muted-foreground text-lg">{msg.description}</p>
+    <div className="bg-background text-foreground flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
+      <p className="text-muted-foreground font-mono text-xs tracking-widest uppercase">Error 404</p>
+      <h1 className="text-5xl font-semibold tracking-tight md:text-6xl">{msg.title}</h1>
+      <p className="text-muted-foreground max-w-sm">{msg.description}</p>
       <Link
         href={lang === "en" ? "/" : `/${lang}`}
-        className="bg-foreground text-background rounded-full px-6 py-2 text-sm font-medium transition-opacity hover:opacity-80"
+        className="bg-foreground text-background mt-2 rounded-md px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-90 active:translate-y-px"
       >
         {msg.back}
       </Link>

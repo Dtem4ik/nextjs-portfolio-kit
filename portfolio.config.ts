@@ -29,9 +29,13 @@ const tagline = {
   ru: "Frontend-разработчик — 7+ лет на React, Next.js, TypeScript и Vue/Nuxt, с глубоко вшитым в процесс ИИ. Открыт к сильным продуктовым командам.",
 } as const;
 
-const avatar = "/photo.jpeg";
+const avatar = "/avatar.jpeg";
 const location = "Haifa, Israel";
 const url = "https://dtem4ik.dev";
+
+// Optional downloadable CV/résumé. Drop the file in /public and point here, or
+// set to "" to hide the download button. e.g. "/cv.pdf".
+const resumeUrl = "/cv.pdf";
 
 const social = {
   github: "https://github.com/Dtem4ik",
@@ -257,6 +261,7 @@ export const portfolioConfig = {
   avatar,
   location,
   url,
+  resumeUrl,
   social,
   features,
   integrations,
