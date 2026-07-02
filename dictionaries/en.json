@@ -5,19 +5,98 @@
   },
   "nav": {
     "home": "Home",
-    "about": "About"
-  },
-  "home": {
-    "comingSoon": "Full portfolio coming soon",
-    "viewGitHub": "View GitHub",
-    "contactEmail": "Send email",
-    "contactLinkedIn": "LinkedIn"
-  },
-  "notFound": {
-    "title": "Page not found",
-    "back": "Go home"
+    "projects": "Projects",
+    "activity": "Activity",
+    "about": "About",
+    "ask": "Ask",
+    "menu": "Menu"
   },
   "a11y": {
     "skipToMain": "Skip to main content"
+  },
+  "notFound": {
+    "eyebrow": "Error 404",
+    "title": "Page not found",
+    "description": "The page you’re looking for doesn’t exist or has moved.",
+    "back": "Go home"
+  },
+  "error": {
+    "eyebrow": "Error",
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "retry": "Try again",
+    "back": "Go home"
+  },
+  "home": {
+    "viewProjects": "View projects",
+    "aboutMe": "About me",
+    "downloadCv": "Download CV",
+    "askCta": "Ask about this developer",
+    "getInTouch": "Get in touch",
+    "featuredWork": "Featured work",
+    "selectedRepositories": "Selected repositories",
+    "allProjects": "All projects",
+    "latestActivity": "Latest engineering activity",
+    "readableUpdates": "Readable project updates",
+    "fullFeed": "Full feed"
+  },
+  "projects": {
+    "title": "Projects",
+    "intro": "Featured repositories are selected in the config, enriched with GitHub metadata, and summarized from indexed project data."
+  },
+  "project": {
+    "back": "Back to projects",
+    "source": "Source",
+    "liveDemo": "Live demo",
+    "viewProject": "View project",
+    "repoMetrics": "Repository metrics",
+    "stars": "Stars",
+    "forks": "Forks",
+    "openIssues": "Open issues",
+    "latestActivity": "Latest activity",
+    "commitsAndReleases": "Commits and releases"
+  },
+  "activity": {
+    "eyebrow": "Latest engineering activity",
+    "title": "Engineering news feed",
+    "intro": "Recent commits become readable, AI-written updates. With an AI key they are generated during sync; otherwise a deterministic fallback is used.",
+    "empty": "No activity has been indexed yet.",
+    "open": "Open"
+  },
+  "about": {
+    "profile": "Profile",
+    "skills": "Skills",
+    "experience": "Experience"
+  },
+  "ask": {
+    "eyebrow": "Portfolio AI",
+    "title": "Ask about this developer",
+    "intro": "The ask layer is grounded in indexed portfolio content: config, selected repositories, commits, releases, skills, and experience. When no AI key is configured, it returns a transparent local fallback.",
+    "projects": "Projects",
+    "activityItems": "Activity items",
+    "provider": "Provider",
+    "model": "Model",
+    "panelLabel": "Ask about this developer",
+    "placeholder": "Ask about experience, projects, stack, or recent activity",
+    "helper": "Answers are constrained to indexed portfolio data and config content.",
+    "ask": "Ask",
+    "asking": "Asking",
+    "modeLabel": "Mode",
+    "modeAi": "AI provider",
+    "modeFallback": "local fallback",
+    "error": "The ask endpoint could not answer right now.",
+    "emptyState": "Submit a question to query the indexed profile, projects, commits, releases, skills, and experience.",
+    "examples": [
+      "What kind of engineer is this developer?",
+      "Which projects show Next.js experience?",
+      "What stack does this portfolio use?"
+    ]
+  },
+  "metrics": {
+    "projects": "Projects",
+    "stars": "Stars",
+    "forks": "Forks",
+    "commitsIndexed": "Commits indexed",
+    "releases": "Releases"
   }
 }

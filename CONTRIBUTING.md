@@ -7,14 +7,21 @@
 3. Run `pnpm dev` and verify everything looks correct
 4. Deploy to Vercel
 
+For the AI news / Ask and Supabase setup, follow **Deploy Your Own** in the [README](README.md#deploy-your-own).
+
 ## Contributing to the template itself
 
 1. Fork and clone the repository
 2. Install dependencies: `pnpm install`
-3. Create a feature branch: `git checkout -b feat/your-feature`
-4. Make your changes
-5. Run checks: `pnpm typecheck && pnpm lint && pnpm build`
-6. Commit and open a pull request
+3. Copy env vars: `cp .env.example .env.local` (all optional — the app runs from config without keys)
+4. Create a feature branch: `git checkout -b feat/your-feature`
+5. Make your changes
+6. Run checks: `pnpm typecheck && pnpm lint && pnpm build`
+7. Commit and open a pull request
+
+## Localization
+
+The site is bilingual (en/ru). When you add or change any user-facing string, update **both** `dictionaries/en.json` and `dictionaries/ru.json` — the two files must have identical key structure. Don't hardcode UI text in components; read it from the dictionary.
 
 ## Commit format
 

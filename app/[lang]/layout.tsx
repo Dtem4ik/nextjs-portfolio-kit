@@ -27,10 +27,10 @@ export async function generateMetadata({
   if (!hasLocale(lang)) return {};
 
   const locale = lang as Locale;
-  const { name, title, bio, url, keywords, locale: localeConfig } = portfolioConfig;
+  const { name, role, tagline, url, keywords, locale: localeConfig } = portfolioConfig;
 
   const canonicalUrl = locale === localeConfig.default ? url : `${url}/${locale}`;
-  const pageTitle = `${name} — ${title[locale]}`;
+  const pageTitle = `${name} — ${role[locale]}`;
 
   // x-default points to the root (default locale, no prefix)
   const hreflangLanguages = Object.fromEntries([
@@ -44,7 +44,7 @@ export async function generateMetadata({
       default: pageTitle,
       template: `%s — ${name}`,
     },
-    description: bio[locale],
+    description: tagline[locale],
     keywords: [...keywords[locale]],
     authors: [{ name, url }],
     creator: name,
@@ -58,13 +58,13 @@ export async function generateMetadata({
       url: canonicalUrl,
       siteName: name,
       title: pageTitle,
-      description: bio[locale],
+      description: tagline[locale],
       locale: ogLocale[locale],
     },
     twitter: {
       card: "summary_large_image",
       title: pageTitle,
-      description: bio[locale],
+      description: tagline[locale],
     },
     robots: {
       index: true,
@@ -92,12 +92,7 @@ export default async function RootLayout({
   return (
     <html lang={lang} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>
         {process.env.VERCEL && <SpeedInsights />}
