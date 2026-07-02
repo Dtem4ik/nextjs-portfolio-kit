@@ -11,7 +11,7 @@
 ![Vercel AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-000?style=for-the-badge&logo=vercel&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-[**🔗 Live demo**](https://dtem4ik.dev) &nbsp;·&nbsp; [**🚀 Deploy your own**](#deploy-your-own) &nbsp;·&nbsp; [**🩺 Troubleshooting**](#-troubleshooting)
+[**🔗 Live demo**](https://nextjs-portfolio-kit.vercel.app/) &nbsp;·&nbsp; [**🚀 Deploy your own**](#deploy-your-own) &nbsp;·&nbsp; [**🩺 Troubleshooting**](#-troubleshooting)
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Dtem4ik/nextjs-portfolio-kit&env=GEMINI_API_KEY,NEXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,CRON_SECRET,GITHUB_TOKEN&envDescription=All%20optional%20%E2%80%94%20leave%20blank%20to%20run%20on%20config%20data%20only)
 
