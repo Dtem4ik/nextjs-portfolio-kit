@@ -53,10 +53,8 @@ function fallbackAnswer(question: string, context: string): AskResult {
 const SYSTEM_PROMPT =
   "You answer questions about a developer portfolio. Use only the provided portfolio context. If the answer is not in context, say that the indexed portfolio data does not include it.";
 
-/**
- * Low-level Gemini (Google AI Studio) text call. Returns the raw model text, or
- * null on any failure/missing key. Set `json` to ask the model for JSON output.
- */
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 /** Primary model first, then the configured fallbacks (Gemini only). */
 function geminiModelChain(): string[] {
   const fallbacks = (
@@ -65,6 +63,12 @@ function geminiModelChain(): string[] {
   return [portfolioConfig.ai.model, ...fallbacks];
 }
 
+/**
+ * Low-level Gemini (Google AI Studio) text call. Returns the raw model text, or
+ * null on failure/missing key. On HTTP 429 it backs off and retries the SAME
+ * model (respecting Retry-After) rather than cascading to fallback models that
+ * usually have a much smaller daily quota. Other errors move to the next model.
+ */
 async function callGemini(
   systemPrompt: string,
   userContent: string,
@@ -82,23 +86,33 @@ async function callGemini(
     },
   });
 
-  // Try each model in the chain; move to the next on quota/404/5xx/empty.
   for (const model of geminiModelChain()) {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body,
-    });
 
-    if (!response.ok) continue;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      });
 
-    const payload = (await response.json().catch(() => null)) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-    } | null;
+      if (response.ok) {
+        const payload = (await response.json().catch(() => null)) as {
+          candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        } | null;
+        const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        if (text) return text;
+        break; // ok but empty → try the next model
+      }
 
-    const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (text) return text;
+      if (response.status === 429 && attempt < 2) {
+        const retryAfter = Number(response.headers.get("retry-after")) || 2 ** (attempt + 1);
+        await sleep(retryAfter * 1000);
+        continue; // retry the same model
+      }
+      if (response.status === 429) return null; // persistently rate limited → skip (retried next sync)
+      break; // 404 / 5xx → try the next model
+    }
   }
 
   return null;
@@ -254,15 +268,31 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ru: "Russian",
 };
 
-function changelogSystemPrompt(language: string) {
+function digestSystemPrompt(language: string, maxEntries: number) {
   return (
-    "You are a technical writer producing changelog/news entries for a developer's portfolio. " +
-    "Given a project's recent commits, write ONE engaging, plain-language update describing what " +
-    "changed and why it matters to a reader. Avoid raw commit jargon and do not just list commits. " +
-    `Write the headline, body and tags in ${language}. ` +
-    'Respond with ONLY minified JSON of the shape {"headline": string, "body": string, "tags": string[]} ' +
-    "where headline is <= 70 characters, body is 2-3 sentences, and tags is 2-4 short lowercase topic tags."
+    "You are a technical writer producing weekly changelog news for a developer's portfolio. " +
+    "You are given the commits a project received during ONE week. Group them into news entries by theme. " +
+    `Decide how many entries the week deserves: return ONE entry for a normal week; return up to ${maxEntries} ` +
+    "entries ONLY when the week clearly contains several DISTINCT features or areas of work; return an EMPTY " +
+    "array [] if the week has only trivial changes (formatting, dependency bumps, config, CI, merges). " +
+    "Group related commits together, avoid repetition and raw commit jargon, and explain what shipped and why " +
+    `it matters. Write in ${language}. ` +
+    'Respond with ONLY minified JSON: an ARRAY of {"headline": string, "body": string, "tags": string[]} ' +
+    "objects, where headline is <= 70 characters, body is 2-4 sentences, and tags is 2-4 short lowercase tags."
   );
+}
+
+/** ISO-8601 week key, e.g. "2026W27", used to group commits into weekly digests. */
+function isoWeekKey(dateStr: string): string {
+  const src = new Date(dateStr);
+  const date = new Date(Date.UTC(src.getUTCFullYear(), src.getUTCMonth(), src.getUTCDate()));
+  const day = (date.getUTCDay() + 6) % 7; // Mon=0 … Sun=6
+  date.setUTCDate(date.getUTCDate() - day + 3); // Thursday of this week
+  const year = date.getUTCFullYear();
+  const firstThursday = new Date(Date.UTC(year, 0, 4));
+  firstThursday.setUTCDate(firstThursday.getUTCDate() - ((firstThursday.getUTCDay() + 6) % 7) + 3);
+  const week = 1 + Math.round((date.getTime() - firstThursday.getTime()) / 604800000);
+  return `${year}W${String(week).padStart(2, "0")}`;
 }
 
 type ChangelogDraft = { headline: string; body: string; tags: string[] };
@@ -326,59 +356,98 @@ async function completeJson(system: string, user: string): Promise<string | null
   return null;
 }
 
-function parseChangelogDraft(raw: string): ChangelogDraft | null {
+function parseChangelogDrafts(raw: string): ChangelogDraft[] {
   try {
     // Providers occasionally wrap JSON in ```json fences; strip them.
     const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
-    const parsed = JSON.parse(cleaned) as Partial<ChangelogDraft>;
-    if (typeof parsed.headline !== "string" || typeof parsed.body !== "string") return null;
-    return {
-      headline: parsed.headline.trim(),
-      body: parsed.body.trim(),
-      tags: Array.isArray(parsed.tags)
-        ? parsed.tags.filter((tag): tag is string => typeof tag === "string").slice(0, 4)
-        : [],
-    };
+    const parsed = JSON.parse(cleaned) as unknown;
+    // Accept an array, a { entries: [...] } wrapper, or a single object.
+    const list = Array.isArray(parsed)
+      ? parsed
+      : parsed &&
+          typeof parsed === "object" &&
+          Array.isArray((parsed as { entries?: unknown }).entries)
+        ? (parsed as { entries: unknown[] }).entries
+        : [parsed];
+
+    return list
+      .filter(
+        (entry): entry is Partial<ChangelogDraft> =>
+          Boolean(entry) &&
+          typeof (entry as ChangelogDraft).headline === "string" &&
+          typeof (entry as ChangelogDraft).body === "string",
+      )
+      .map((entry) => ({
+        headline: String(entry.headline).trim(),
+        body: String(entry.body).trim(),
+        tags: Array.isArray(entry.tags)
+          ? entry.tags.filter((tag): tag is string => typeof tag === "string").slice(0, 4)
+          : [],
+      }));
   } catch {
-    return null;
+    return [];
   }
 }
 
-function changelogId(slug: string, sha: string, locale: string) {
-  return `${slug}-changelog-${sha}-${locale}`;
+/** The ISO week a `${slug}-changelog-${week}-${index}-${locale}` id belongs to. */
+export function currentIsoWeek(): string {
+  return isoWeekKey(new Date().toISOString());
 }
 
-async function generateCommitNews(
+/** Whether any digest for this project/week/locale already exists (parsed from ids). */
+function weekLocaleKey(slug: string, weekKey: string, locale: string) {
+  return `${slug}::${weekKey}::${locale}`;
+}
+
+function existingWeekLocales(existingIds: Set<string>): Set<string> {
+  const set = new Set<string>();
+  for (const id of existingIds) {
+    const [slug, rest] = id.split("-changelog-");
+    if (!rest) continue;
+    const segs = rest.split("-"); // [week, index, locale]
+    if (segs.length < 3) continue;
+    set.add(weekLocaleKey(slug, segs[0], segs[segs.length - 1]));
+  }
+  return set;
+}
+
+async function generateWeekDigests(
   project: PortfolioProject,
-  commit: PortfolioCommit,
+  weekKey: string,
+  commits: PortfolioCommit[],
   locale: string,
-): Promise<ActivityItem | null> {
+): Promise<ActivityItem[]> {
+  const language = LANGUAGE_NAMES[locale] ?? "English";
   const user = [
     `Project: ${project.name}`,
     `Description: ${project.description}`,
     `Stack: ${project.stack.join(", ")}`,
-    `Commit message: ${commit.message}`,
+    `Commits this week (${commits.length}, newest first):`,
+    ...commits.map((commit) => `- ${commit.message}`),
   ].join("\n");
 
-  const language = LANGUAGE_NAMES[locale] ?? "English";
-  const raw = await completeJson(changelogSystemPrompt(language), user);
-  if (!raw) return null;
+  const raw = await completeJson(
+    digestSystemPrompt(language, portfolioConfig.ai.newsMaxPerWeek),
+    user,
+  );
+  if (!raw) return [];
 
-  const draft = parseChangelogDraft(raw);
-  if (!draft) return null;
+  const drafts = parseChangelogDrafts(raw).slice(0, portfolioConfig.ai.newsMaxPerWeek);
+  const latestMs = new Date(commits[0].date).getTime();
 
-  return {
-    id: changelogId(project.slug, commit.sha, locale),
+  return drafts.map((draft, index) => ({
+    id: `${project.slug}-changelog-${weekKey}-${index}-${locale}`,
     projectSlug: project.slug,
     projectName: project.name,
     title: draft.headline,
     summary: draft.body,
-    date: commit.date,
-    href: commit.url,
+    // Offset by index so multiple entries in one week keep a stable order.
+    date: new Date(latestMs - index * 1000).toISOString(),
+    href: commits[0].url,
     type: "changelog",
     tags: draft.tags,
     locale,
-  };
+  }));
 }
 
 /** Run async tasks with a small concurrency cap to respect provider rate limits. */
@@ -396,9 +465,12 @@ async function mapPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise
 }
 
 /**
- * Generate one AI news entry per recent commit, per supported locale. Commits
- * whose entry id already exists in `existingIds` are skipped, so a backfill
- * runs once and later syncs only touch new commits. Merge commits are ignored.
+ * Generate weekly-digest news, per project / ISO week / locale. The model decides
+ * how many entries each week deserves (1 normally, up to `newsMaxPerWeek` for
+ * several distinct features, 0 for trivial weeks). Past weeks already generated
+ * are skipped (idempotent); the still-open current week is refreshed. The number
+ * of model calls (weeks) is capped per run so a large backfill spreads over
+ * several daily syncs and stays within API rate limits.
  */
 export async function generateChangelogActivity(
   projects: PortfolioProject[],
@@ -406,23 +478,49 @@ export async function generateChangelogActivity(
 ): Promise<ActivityItem[]> {
   if (!isAiConfigured()) return [];
 
-  const perProject = portfolioConfig.ai.newsPerProject;
-  const jobs: { project: PortfolioProject; commit: PortfolioCommit; locale: string }[] = [];
+  const { newsWeeks, maxNewsPerSync } = portfolioConfig.ai;
+  const currentWeek = currentIsoWeek();
+  const done = existingWeekLocales(existingIds);
 
-  for (const locale of portfolioConfig.locale.supported) {
-    for (const project of projects) {
-      const commits = project.latestCommits
-        .filter((commit) => !commit.message.startsWith("Merge "))
-        .slice(0, perProject);
-      for (const commit of commits) {
-        if (existingIds.has(changelogId(project.slug, commit.sha, locale))) continue;
-        jobs.push({ project, commit, locale });
+  type Job = {
+    project: PortfolioProject;
+    weekKey: string;
+    commits: PortfolioCommit[];
+    locale: string;
+    ts: number;
+  };
+  const jobs: Job[] = [];
+
+  for (const project of projects) {
+    // Group this project's non-merge commits by ISO week (latestCommits is newest-first).
+    const byWeek = new Map<string, PortfolioCommit[]>();
+    for (const commit of project.latestCommits) {
+      if (commit.message.startsWith("Merge ")) continue;
+      const key = isoWeekKey(commit.date);
+      const existing = byWeek.get(key);
+      if (existing) existing.push(commit);
+      else byWeek.set(key, [commit]);
+    }
+
+    const weeks = [...byWeek.keys()].sort().reverse().slice(0, newsWeeks);
+    for (const locale of portfolioConfig.locale.supported) {
+      for (const weekKey of weeks) {
+        const commits = byWeek.get(weekKey)!;
+        // Regenerate the still-open current week; skip already-generated past weeks.
+        if (done.has(weekLocaleKey(project.slug, weekKey, locale)) && weekKey !== currentWeek) {
+          continue;
+        }
+        jobs.push({ project, weekKey, commits, locale, ts: new Date(commits[0].date).getTime() });
       }
     }
   }
 
-  const items = await mapPool(jobs, 4, (job) =>
-    generateCommitNews(job.project, job.commit, job.locale),
+  // Newest weeks first, capped per run (skip-existing lets the rest fill in later).
+  jobs.sort((a, b) => b.ts - a.ts);
+  const batch = jobs.slice(0, maxNewsPerSync);
+
+  const results = await mapPool(batch, 2, (job) =>
+    generateWeekDigests(job.project, job.weekKey, job.commits, job.locale),
   );
-  return items.filter((item): item is ActivityItem => item !== null);
+  return results.flat();
 }

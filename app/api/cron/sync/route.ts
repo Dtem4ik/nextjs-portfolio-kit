@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { generateChangelogActivity, isAiConfigured } from "@/lib/portfolio/ai";
+import { currentIsoWeek, generateChangelogActivity, isAiConfigured } from "@/lib/portfolio/ai";
 import { buildFreshPortfolioData } from "@/lib/portfolio/data";
 import {
+  deleteChangelogForWeek,
   isSupabaseConfigured,
   persistPortfolioSnapshot,
   readExistingChangelogIds,
@@ -33,6 +34,9 @@ export async function GET(request: Request) {
     const existingIds = await readExistingChangelogIds();
     const changelog = await generateChangelogActivity(data.projects, existingIds);
     newChangelogItems = changelog.length;
+    // The current week's entry count can change between runs; clear its rows so a
+    // shrinking count doesn't leave orphans, then persist the freshly built set.
+    await deleteChangelogForWeek(currentIsoWeek());
     const releases = data.activity.filter((item) => item.type === "release");
     data.activity = [...changelog, ...releases];
   }

@@ -137,12 +137,16 @@ export async function fetchGitHubProject(
   // When the GitHub integration is disabled, render straight from config data.
   if (!portfolioConfig.github.enabled) return fallback;
 
-  const perPage = Math.max(portfolioConfig.ai.newsPerProject + 5, 10);
+  // Fetch commits from the window the weekly digest covers (a few days of buffer).
+  const sinceDays = portfolioConfig.ai.newsWeeks * 7 + 3;
+  const since = new Date(Date.now() - sinceDays * 86400000).toISOString();
 
   try {
     const [repo, commits, releases, languages] = await Promise.all([
       githubFetch<GitHubRepository>(`/repos/${username}/${project.repo}`),
-      githubFetch<GitHubCommit[]>(`/repos/${username}/${project.repo}/commits?per_page=${perPage}`),
+      githubFetch<GitHubCommit[]>(
+        `/repos/${username}/${project.repo}/commits?since=${since}&per_page=100`,
+      ),
       githubFetch<GitHubRelease[]>(`/repos/${username}/${project.repo}/releases?per_page=4`),
       githubFetch<GitHubLanguageMap>(`/repos/${username}/${project.repo}/languages`),
     ]);

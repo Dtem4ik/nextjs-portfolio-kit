@@ -41,24 +41,41 @@ async function insertRows(table: string, rows: unknown[]) {
   return response.ok;
 }
 
-async function readRows<T>(table: string, query: string): Promise<T[]> {
+async function readRows<T>(
+  table: string,
+  query: string,
+  options: { fresh?: boolean } = {},
+): Promise<T[]> {
   if (!isSupabaseConfigured()) return [];
 
   const response = await fetch(`${supabaseUrl}/rest/v1/${table}?${query}`, {
     headers: supabaseHeaders({ Accept: "application/json" }),
-    // ISR-cache the read so pages don't hit the DB on every request; the cron
-    // refreshes the underlying data daily.
-    next: { revalidate: portfolioConfig.integrations.supabase.revalidateSeconds },
+    // Pages ISR-cache the read so they don't hit the DB on every request; the
+    // cron passes `fresh` to see the current state (e.g. which news already exist).
+    ...(options.fresh
+      ? { cache: "no-store" as const }
+      : { next: { revalidate: portfolioConfig.integrations.supabase.revalidateSeconds } }),
   });
 
   if (!response.ok) return [];
   return (await response.json().catch(() => [])) as T[];
 }
 
+/** Remove stored changelog entries for one ISO week (a changed count could otherwise orphan rows). */
+export async function deleteChangelogForWeek(weekKey: string): Promise<void> {
+  if (!isSupabaseConfigured()) return;
+  await fetch(
+    `${supabaseUrl}/rest/v1/activity_items?type=eq.changelog&id=like.*-changelog-${weekKey}-*`,
+    { method: "DELETE", headers: supabaseHeaders() },
+  );
+}
+
 /** Ids of changelog entries already stored, so the cron skips re-generating them. */
 export async function readExistingChangelogIds(): Promise<Set<string>> {
   if (!isSupabaseConfigured()) return new Set();
-  const rows = await readRows<{ id: string }>("activity_items", "select=id&type=eq.changelog");
+  const rows = await readRows<{ id: string }>("activity_items", "select=id&type=eq.changelog", {
+    fresh: true,
+  });
   return new Set(rows.map((row) => row.id));
 }
 
