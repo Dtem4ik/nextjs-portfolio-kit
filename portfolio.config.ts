@@ -78,8 +78,15 @@ const integrations = {
     fallbackModels: ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite"],
     temperature: 0.4,
     maxInputItems: 48,
-    // How many recent commits per project become individual news entries.
-    newsPerProject: 5,
+    // News is a weekly digest: the model groups each week's commits into ONE
+    // entry per project (dedupes, drops trivia). Far fewer API calls + no
+    // repetitive per-commit spam.
+    newsWeeks: 8, // how many recent weeks per project to summarize
+    // The model decides how many entries a week deserves: 1 for a normal week,
+    // up to `newsMaxPerWeek` when the week has several distinct features, 0 if
+    // only trivial changes. So the number of news follows the work, not the calendar.
+    newsMaxPerWeek: 3,
+    maxNewsPerSync: 12, // safety cap on model calls per run (a big backfill drains over days)
   },
   // Read-through cache: the cron job fetches from GitHub, generates the AI news,
   // and writes a snapshot to Supabase; pages then read that snapshot instead of
