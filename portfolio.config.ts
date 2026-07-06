@@ -81,12 +81,12 @@ const integrations = {
     // News is a weekly digest: the model groups each week's commits into ONE
     // entry per project (dedupes, drops trivia). Far fewer API calls + no
     // repetitive per-commit spam.
-    newsWeeks: 8, // how many recent weeks per project to summarize
-    // The model decides how many entries a week deserves: 1 for a normal week,
-    // up to `newsMaxPerWeek` when the week has several distinct features, 0 if
-    // only trivial changes. So the number of news follows the work, not the calendar.
-    newsMaxPerWeek: 3,
-    maxNewsPerSync: 12, // safety cap on model calls per run (a big backfill drains over days)
+    newsDays: 30, // how many recent days per project to summarize
+    // The model decides how many entries a day deserves: 1 for a normal day of
+    // work, up to `newsMaxPerDay` when the day has clearly distinct features, 0 if
+    // only trivial changes. So the number of news follows the work, not the clock.
+    newsMaxPerDay: 2,
+    maxNewsPerSync: 12, // safety cap on model calls per run (a big backfill drains over runs)
   },
   // Read-through cache: the cron job fetches from GitHub, generates the AI news,
   // and writes a snapshot to Supabase; pages then read that snapshot instead of

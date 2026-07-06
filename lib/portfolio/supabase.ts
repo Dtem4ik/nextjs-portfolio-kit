@@ -61,11 +61,11 @@ async function readRows<T>(
   return (await response.json().catch(() => [])) as T[];
 }
 
-/** Remove stored changelog entries for one ISO week (a changed count could otherwise orphan rows). */
-export async function deleteChangelogForWeek(weekKey: string): Promise<void> {
+/** Remove stored changelog entries for one day key (a changed count could otherwise orphan rows). */
+export async function deleteChangelogForDay(dayKey: string): Promise<void> {
   if (!isSupabaseConfigured()) return;
   await fetch(
-    `${supabaseUrl}/rest/v1/activity_items?type=eq.changelog&id=like.*-changelog-${weekKey}-*`,
+    `${supabaseUrl}/rest/v1/activity_items?type=eq.changelog&id=like.*-changelog-${dayKey}-*`,
     { method: "DELETE", headers: supabaseHeaders() },
   );
 }
