@@ -137,8 +137,8 @@ export async function fetchGitHubProject(
   // When the GitHub integration is disabled, render straight from config data.
   if (!portfolioConfig.github.enabled) return fallback;
 
-  // Fetch commits from the window the weekly digest covers (a few days of buffer).
-  const sinceDays = portfolioConfig.ai.newsWeeks * 7 + 3;
+  // Fetch commits from the window the daily digest covers (a day of buffer).
+  const sinceDays = portfolioConfig.ai.newsDays + 1;
   const since = new Date(Date.now() - sinceDays * 86400000).toISOString();
 
   try {
