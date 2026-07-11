@@ -1,3 +1,8 @@
+-- NOTE: These tables now live in the `portfolio` schema, not `public` (the project's
+-- public schema is reserved for olim-app). For a fresh setup, run `create schema
+-- portfolio;` and `set search_path = portfolio;` first, expose `portfolio` in the
+-- Data API, and grant it to the API roles. See docs/DB_MIGRATION.md.
+
 create table if not exists profile (
   id uuid primary key default gen_random_uuid(),
   name text not null,

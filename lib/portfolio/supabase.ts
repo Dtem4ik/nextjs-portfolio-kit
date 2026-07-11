@@ -20,6 +20,11 @@ function supabaseHeaders(extra: HeadersInit = {}): HeadersInit {
   return {
     apikey: serviceRoleKey as string,
     Authorization: `Bearer ${serviceRoleKey}`,
+    // Portfolio tables live in the `portfolio` schema (the project's `public` schema
+    // is reserved for olim-app). PostgREST selects the schema per request via these
+    // profile headers: Accept-Profile for reads, Content-Profile for writes.
+    "Accept-Profile": "portfolio",
+    "Content-Profile": "portfolio",
     ...extra,
   };
 }
