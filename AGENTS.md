@@ -26,6 +26,12 @@ portfolio data.
   hardcoded colors. Tailwind v4 is CSS-first — there is **no `tailwind.config`**.
 - **pnpm only.** Conventional Commits (English, imperative).
 - Run `pnpm typecheck && pnpm lint && pnpm build` before finishing a change.
+- **All DB data lives in the `portfolio` schema, NOT `public`.** This Supabase
+  project is shared with another app (olim-app), which owns `public`. Never create,
+  read, write, or migrate tables in `public`, and never remove the `Accept-Profile` /
+  `Content-Profile: portfolio` headers in `lib/portfolio/supabase.ts` — doing so
+  silently breaks every DB read/write (PostgREST 404s in `public`). See
+  [`docs/DB_MIGRATION.md`](docs/DB_MIGRATION.md).
 
 ## Stack
 
@@ -41,7 +47,7 @@ next-themes · react-markdown · pnpm · Vercel.
   - `types.ts` — domain types (`PortfolioProject`, `ActivityItem`, …).
   - `github.ts` — fetch repo stats / commits / releases / languages, with config fallback.
   - `data.ts` — `getPortfolioData(locale)` resolves **Supabase snapshot → live GitHub → config fallback**; `buildFreshPortfolioData()` is used by the cron.
-  - `supabase.ts` — server-only REST read/write of the snapshot cache; reads are ISR-cached.
+  - `supabase.ts` — server-only REST read/write of the snapshot cache; reads are ISR-cached. Targets the **`portfolio`** schema via `Accept-Profile`/`Content-Profile` headers (the shared project's `public` belongs to olim-app).
   - `ai.ts` — `generateChangelogActivity()` (commit → news, per locale, skips already-stored commits) and `createAskResponse()` (streaming Ask); provider dispatch gemini/openai/anthropic.
   - `dictionaries.ts` / `structured-data.ts` — i18n loader / JSON-LD Person.
 - `app/[lang]/` — locale-prefixed pages (`page`, `about`, `projects`, `projects/[slug]`, `activity`, `ask`). Each optional page guards its `features` flag → `notFound()` when off.
@@ -81,3 +87,8 @@ pnpm typecheck  # tsc --noEmit
 - `integrations.ai.model` has a fallback chain; a given API key may lack quota for a specific Gemini model.
 - Updating the avatar: image URLs are cached — rename the file and update `avatar` in config.
 - `components/ui/` is shadcn CLI-managed — add via `pnpm dlx shadcn@latest add <name>`, don't hand-edit.
+- **Shared Supabase project.** `public` is reserved for olim-app; portfolio tables
+  live in `portfolio`. A new table must be created **in `portfolio`** (`create table
+portfolio.<name> …`), exposed in Data API → Exposed schemas, and granted to the API
+  roles — otherwise the REST call 404s. Don't `pg_dump`/restore or truncate `public`.
+  `docs/supabase-schema.sql` documents the tables (now under `portfolio`).
