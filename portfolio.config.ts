@@ -208,8 +208,18 @@ type ProjectConfig = {
 
 const projects: ProjectConfig[] = [
   {
+    repo: "olim-app",
+    slug: "olim-app",
+    name: "Olim App",
+    stack: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "PWA"],
+    featured: true,
+    aiSummary:
+      "An adaptation navigator for new immigrants (olim) in Israel: a personalized home screen, practical guides (banking, rent, healthcare, work, benefits, Hebrew), and a trackable plan with deadline warnings — RU/EN, light/dark, PWA-first.",
+  },
+  {
     repo: "genwidget-ai",
     slug: "genwidget-ai",
+    name: "GenWidget AI",
     stack: ["Next.js", "TypeScript", "AI"],
   },
   {
@@ -225,7 +235,8 @@ const projects: ProjectConfig[] = [
   {
     repo: "carswash-new-mono",
     slug: "carswash-new-mono",
-    stack: ["TypeScript", "Monorepo"],
+    name: "Carwash SaaS",
+    stack: ["Next.js", "FastAPI", "TypeScript", "Monorepo"],
   },
 ];
 
