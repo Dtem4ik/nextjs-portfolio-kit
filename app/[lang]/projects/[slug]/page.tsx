@@ -7,7 +7,7 @@ import { SiteShell } from "@/components/portfolio/site-shell";
 import { Button } from "@/components/ui/button";
 import { getPortfolioData, getProjectSlugs } from "@/lib/portfolio/data";
 import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
-import { buildAlternates } from "@/lib/i18n";
+import { buildPageMetadata } from "@/lib/i18n";
 import { portfolioConfig } from "@/portfolio.config";
 
 function localizedHref(locale: Locale, href: string) {
@@ -23,10 +23,15 @@ export async function generateMetadata({
   const data = await getPortfolioData();
   const project = data.projects.find((item) => item.slug === slug);
 
+  const title = project ? project.name : "Project";
+  const description = project?.description ?? "";
+
   return {
-    title: project ? project.name : "Project",
-    description: project?.description,
-    ...(hasLocale(lang) ? { alternates: buildAlternates(lang as Locale, `projects/${slug}`) } : {}),
+    title,
+    description,
+    ...(hasLocale(lang)
+      ? buildPageMetadata(lang as Locale, `projects/${slug}`, { title, description })
+      : {}),
   };
 }
 

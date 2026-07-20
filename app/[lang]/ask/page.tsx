@@ -4,7 +4,7 @@ import { AskPanel } from "@/components/portfolio/ask-panel";
 import { SiteShell } from "@/components/portfolio/site-shell";
 import { getPortfolioData } from "@/lib/portfolio/data";
 import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
-import { buildAlternates } from "@/lib/i18n";
+import { buildPageMetadata } from "@/lib/i18n";
 import { portfolioConfig } from "@/portfolio.config";
 
 export async function generateMetadata({
@@ -15,10 +15,12 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
+  const title = dict.nav.ask;
+  const description = dict.ask.intro;
   return {
-    title: dict.nav.ask,
-    description: dict.ask.intro,
-    alternates: buildAlternates(lang as Locale, "ask"),
+    title,
+    description,
+    ...buildPageMetadata(lang as Locale, "ask", { title, description }),
   };
 }
 

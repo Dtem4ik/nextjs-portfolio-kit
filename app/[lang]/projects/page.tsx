@@ -4,7 +4,7 @@ import { ProjectCard } from "@/components/portfolio/project-card";
 import { SiteShell } from "@/components/portfolio/site-shell";
 import { getPortfolioData } from "@/lib/portfolio/data";
 import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
-import { buildAlternates } from "@/lib/i18n";
+import { buildPageMetadata } from "@/lib/i18n";
 import { portfolioConfig } from "@/portfolio.config";
 
 export async function generateMetadata({
@@ -15,10 +15,12 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
+  const title = dict.projects.title;
+  const description = dict.projects.intro;
   return {
-    title: dict.projects.title,
-    description: dict.projects.intro,
-    alternates: buildAlternates(lang as Locale, "projects"),
+    title,
+    description,
+    ...buildPageMetadata(lang as Locale, "projects", { title, description }),
   };
 }
 
