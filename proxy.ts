@@ -15,7 +15,8 @@ export function proxy(request: NextRequest) {
   if (pathname === `/${defaultLocale}` || pathname.startsWith(`/${defaultLocale}/`)) {
     const newPath = pathname.slice(`/${defaultLocale}`.length) || "/";
     request.nextUrl.pathname = newPath;
-    return NextResponse.redirect(request.nextUrl);
+    // 308 (permanent) so search engines consolidate to the clean, prefix-less URL.
+    return NextResponse.redirect(request.nextUrl, 308);
   }
 
   // Non-default locale already in path → pass through

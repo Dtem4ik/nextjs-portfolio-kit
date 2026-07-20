@@ -26,14 +26,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
         changeFrequency: route.startsWith("activity") ? "weekly" : "monthly",
         priority: route === "" ? 1 : 0.7,
         alternates: {
-          languages: Object.fromEntries(
-            locale.supported.map((l) => {
+          languages: Object.fromEntries([
+            ...locale.supported.map((l) => {
               const localizedPath = [l === locale.default ? "" : l, route]
                 .filter(Boolean)
                 .join("/");
               return [l, localizedPath ? `${url}/${localizedPath}` : url];
             }),
-          ),
+            // x-default → default-locale URL, matching the page <head> hreflang.
+            ["x-default", route ? `${url}/${route}` : url],
+          ]),
         },
       } satisfies MetadataRoute.Sitemap[number];
     }),

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { hasLocale, type Locale } from "@/lib/dictionaries";
-import { ogLocale } from "@/lib/i18n";
+import { buildAlternates, localizedUrl, ogLocale } from "@/lib/i18n";
 import { portfolioConfig } from "@/portfolio.config";
 import "@/app/globals.css";
 
@@ -27,16 +27,10 @@ export async function generateMetadata({
   if (!hasLocale(lang)) return {};
 
   const locale = lang as Locale;
-  const { name, role, tagline, url, keywords, locale: localeConfig } = portfolioConfig;
+  const { name, role, tagline, url, keywords } = portfolioConfig;
 
-  const canonicalUrl = locale === localeConfig.default ? url : `${url}/${locale}`;
+  const canonicalUrl = localizedUrl(locale);
   const pageTitle = `${name} — ${role[locale]}`;
-
-  // x-default points to the root (default locale, no prefix)
-  const hreflangLanguages = Object.fromEntries([
-    ...localeConfig.supported.map((l) => [l, l === localeConfig.default ? url : `${url}/${l}`]),
-    ["x-default", url],
-  ]);
 
   return {
     metadataBase: new URL(url),
@@ -49,10 +43,7 @@ export async function generateMetadata({
     authors: [{ name, url }],
     creator: name,
     publisher: name,
-    alternates: {
-      canonical: canonicalUrl,
-      languages: hreflangLanguages,
-    },
+    alternates: buildAlternates(locale),
     openGraph: {
       type: "website",
       url: canonicalUrl,

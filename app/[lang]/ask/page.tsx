@@ -4,6 +4,9 @@ import { AskPanel } from "@/components/portfolio/ask-panel";
 import { SiteShell } from "@/components/portfolio/site-shell";
 import { getPortfolioData } from "@/lib/portfolio/data";
 import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
+import { JsonLd } from "@/components/portfolio/json-ld";
+import { buildPageMetadata } from "@/lib/i18n";
+import { buildBreadcrumbSchema } from "@/lib/structured-data";
 import { portfolioConfig } from "@/portfolio.config";
 
 export async function generateMetadata({
@@ -14,7 +17,13 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  return { title: dict.nav.ask, description: dict.ask.intro };
+  const title = dict.nav.ask;
+  const description = dict.ask.intro;
+  return {
+    title,
+    description,
+    ...buildPageMetadata(lang as Locale, "ask", { title, description }),
+  };
 }
 
 export default async function AskPage({ params }: { params: Promise<{ lang: string }> }) {
@@ -28,6 +37,12 @@ export default async function AskPage({ params }: { params: Promise<{ lang: stri
 
   return (
     <SiteShell locale={locale}>
+      <JsonLd
+        schema={buildBreadcrumbSchema(locale, [
+          { name: dict.nav.home, route: "" },
+          { name: dict.nav.ask, route: "ask" },
+        ])}
+      />
       <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
           <p className="text-muted-foreground font-mono text-xs uppercase">{dict.ask.eyebrow}</p>
