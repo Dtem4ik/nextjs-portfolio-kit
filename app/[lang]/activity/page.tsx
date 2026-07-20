@@ -4,6 +4,7 @@ import { ActivityList } from "@/components/portfolio/activity-list";
 import { SiteShell } from "@/components/portfolio/site-shell";
 import { getPortfolioData } from "@/lib/portfolio/data";
 import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
+import { buildAlternates } from "@/lib/i18n";
 import { portfolioConfig } from "@/portfolio.config";
 
 export async function generateMetadata({
@@ -14,7 +15,11 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  return { title: dict.activity.title, description: dict.activity.intro };
+  return {
+    title: dict.activity.title,
+    description: dict.activity.intro,
+    alternates: buildAlternates(lang as Locale, "activity"),
+  };
 }
 
 export default async function ActivityPage({ params }: { params: Promise<{ lang: string }> }) {

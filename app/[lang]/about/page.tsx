@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SiteShell } from "@/components/portfolio/site-shell";
 import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
+import { buildAlternates } from "@/lib/i18n";
 import { portfolioConfig } from "@/portfolio.config";
 
 export async function generateMetadata({
@@ -13,7 +14,11 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  return { title: dict.nav.about, description: portfolioConfig.tagline[lang] };
+  return {
+    title: dict.nav.about,
+    description: portfolioConfig.tagline[lang],
+    alternates: buildAlternates(lang as Locale, "about"),
+  };
 }
 
 export default async function AboutPage({ params }: { params: Promise<{ lang: string }> }) {
