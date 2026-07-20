@@ -4,7 +4,9 @@ import { ActivityList } from "@/components/portfolio/activity-list";
 import { SiteShell } from "@/components/portfolio/site-shell";
 import { getPortfolioData } from "@/lib/portfolio/data";
 import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
+import { JsonLd } from "@/components/portfolio/json-ld";
 import { buildPageMetadata } from "@/lib/i18n";
+import { buildBreadcrumbSchema } from "@/lib/structured-data";
 import { portfolioConfig } from "@/portfolio.config";
 
 export async function generateMetadata({
@@ -35,6 +37,12 @@ export default async function ActivityPage({ params }: { params: Promise<{ lang:
 
   return (
     <SiteShell locale={locale}>
+      <JsonLd
+        schema={buildBreadcrumbSchema(locale, [
+          { name: dict.nav.home, route: "" },
+          { name: dict.nav.activity, route: "activity" },
+        ])}
+      />
       <section className="max-w-3xl">
         <p className="text-muted-foreground font-mono text-xs uppercase">{dict.activity.eyebrow}</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">

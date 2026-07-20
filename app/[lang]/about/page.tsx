@@ -3,7 +3,9 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { SiteShell } from "@/components/portfolio/site-shell";
 import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
+import { JsonLd } from "@/components/portfolio/json-ld";
 import { buildPageMetadata } from "@/lib/i18n";
+import { buildBreadcrumbSchema } from "@/lib/structured-data";
 import { portfolioConfig } from "@/portfolio.config";
 
 export async function generateMetadata({
@@ -33,6 +35,12 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: st
 
   return (
     <SiteShell locale={locale}>
+      <JsonLd
+        schema={buildBreadcrumbSchema(locale, [
+          { name: dict.nav.home, route: "" },
+          { name: dict.nav.about, route: "about" },
+        ])}
+      />
       <section className="grid gap-8 lg:grid-cols-[18rem_1fr]">
         <aside>
           <Image

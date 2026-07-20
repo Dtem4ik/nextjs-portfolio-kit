@@ -5,6 +5,7 @@ import { ArrowUpRight, Download, MapPin } from "lucide-react";
 import { ActivityList } from "@/components/portfolio/activity-list";
 import { MetricStrip } from "@/components/portfolio/metric-strip";
 import { ProjectCard } from "@/components/portfolio/project-card";
+import { JsonLd } from "@/components/portfolio/json-ld";
 import { SiteShell } from "@/components/portfolio/site-shell";
 import { Button } from "@/components/ui/button";
 import { getPortfolioData } from "@/lib/portfolio/data";
@@ -36,12 +37,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
 
   return (
     <SiteShell locale={locale}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
-        }}
-      />
+      <JsonLd schema={jsonLd} />
 
       <section className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
         <div className="max-w-3xl">

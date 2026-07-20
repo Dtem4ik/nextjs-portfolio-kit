@@ -7,7 +7,9 @@ import { SiteShell } from "@/components/portfolio/site-shell";
 import { Button } from "@/components/ui/button";
 import { getPortfolioData, getProjectSlugs } from "@/lib/portfolio/data";
 import { getDictionary, hasLocale, type Locale } from "@/lib/dictionaries";
+import { JsonLd } from "@/components/portfolio/json-ld";
 import { buildPageMetadata } from "@/lib/i18n";
+import { buildBreadcrumbSchema, buildProjectSchema } from "@/lib/structured-data";
 import { portfolioConfig } from "@/portfolio.config";
 
 function localizedHref(locale: Locale, href: string) {
@@ -61,6 +63,15 @@ export default async function ProjectPage({
 
   return (
     <SiteShell locale={locale}>
+      <JsonLd
+        schema={buildBreadcrumbSchema(locale, [
+          { name: dict.nav.home, route: "" },
+          { name: dict.nav.projects, route: "projects" },
+          { name: project.name, route: `projects/${project.slug}` },
+        ])}
+      />
+      <JsonLd schema={buildProjectSchema(locale, project)} />
+
       <div className="mb-8">
         <Link
           href={localizedHref(locale, "/projects")}
