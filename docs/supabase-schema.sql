@@ -101,3 +101,19 @@ create table if not exists chat_logs (
 create index if not exists commits_project_date_idx on commits (project_slug, committed_at desc);
 create index if not exists activity_items_date_idx on activity_items (happened_at desc);
 create index if not exists ai_summaries_entity_idx on ai_summaries (entity_type, entity_id);
+
+-- Row-Level Security. The `portfolio` schema is exposed via the Data API and the
+-- `anon`/`authenticated` roles hold grants on it, so RLS is REQUIRED — without it
+-- anyone with the public anon key could read/write these rows (Supabase advisor:
+-- `rls_disabled_in_public`). The app only ever reaches these tables server-side
+-- with `service_role`, which BYPASSES RLS, so enabling RLS with NO policies is
+-- correct: anon is denied everything, the site keeps working. See
+-- docs/SECURITY_RLS_FIX.md and docs/migrations/2026-07-29-enable-rls-portfolio.sql.
+alter table profile        enable row level security;
+alter table projects       enable row level security;
+alter table commits        enable row level security;
+alter table releases       enable row level security;
+alter table activity_items enable row level security;
+alter table ai_summaries   enable row level security;
+alter table sync_state     enable row level security;
+alter table chat_logs      enable row level security;
