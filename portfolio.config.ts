@@ -10,13 +10,13 @@
 const name = "Artyom Friedman";
 
 const role = {
-  en: "Frontend Engineer",
-  ru: "Frontend-разработчик",
+  en: "Frontend & Full-Stack Engineer",
+  ru: "Frontend & Full-Stack разработчик",
 } as const;
 
 const bio = {
-  en: "Frontend Engineer with 7+ years of production experience across B2B SaaS, fintech, banking, and consumer products. Strong in React, Next.js, TypeScript, and Tailwind, with a deep Vue 3 / Nuxt 3 background — I own the full frontend lifecycle: architecture, CI/CD, performance, and releases. I ship fast because AI is wired deep into my daily work: Claude Code at the agent layer (hooks, MCP servers, custom skills, plugins), multi-agent systems, and an internal 8-lesson AI program I designed and delivered for executive leadership.",
-  ru: "Frontend-разработчик с 7+ годами продакшен-опыта в B2B SaaS, финтехе, банках и потребительских продуктах. Уверенно работаю с React, Next.js, TypeScript и Tailwind, с сильным бэкграундом в Vue 3 / Nuxt 3 — веду весь фронтенд-цикл: архитектуру, CI/CD, производительность и релизы. Выкатываю быстро, потому что ИИ глубоко вшит в мою работу: Claude Code на уровне агентов (hooks, MCP-серверы, кастомные скиллы, плагины), мультиагентные системы и внутренний курс из 8 уроков по ИИ, который я разработал и провёл для топ-менеджмента.",
+  en: "Frontend & Full-Stack Engineer with 7+ years of production experience across B2B SaaS, fintech, banking, real estate and consumer products. Israeli citizen based in the Haifa area — open to Frontend and Full-Stack roles. Strong in React, Next.js, TypeScript, and Tailwind, with a deep Vue 3 / Nuxt 3 background — I own the full frontend lifecycle: architecture, CI/CD, performance, and releases. I ship fast because AI is wired deep into my daily work: Claude Code at the agent layer (hooks, MCP servers, custom skills, plugins), multi-agent systems, and an internal 8-lesson AI program I designed and delivered for executive leadership.",
+  ru: "Frontend и Full-Stack разработчик с 7+ годами продакшен-опыта в B2B SaaS, финтехе, банках, недвижимости и потребительских продуктах. Гражданин Израиля, живу в районе Хайфы — открыт к Frontend и Full-Stack ролям. Уверенно работаю с React, Next.js, TypeScript и Tailwind, с сильным бэкграундом в Vue 3 / Nuxt 3 — веду весь фронтенд-цикл: архитектуру, CI/CD, производительность и релизы. Выкатываю быстро, потому что ИИ глубоко вшит в мою работу: Claude Code на уровне агентов (hooks, MCP-серверы, кастомные скиллы, плагины), мультиагентные системы и внутренний курс из 8 уроков по ИИ, который я разработал и провёл для топ-менеджмента.",
 } as const;
 
 /**
@@ -25,8 +25,8 @@ const bio = {
  * full `bio` still powers the hero and the JSON-LD Person description.
  */
 const tagline = {
-  en: "Frontend Engineer — 7+ years in React, Next.js, TypeScript and Vue/Nuxt, with AI wired deep into the workflow. Open to strong product teams.",
-  ru: "Frontend-разработчик — 7+ лет на React, Next.js, TypeScript и Vue/Nuxt, с глубоко вшитым в процесс ИИ. Открыт к сильным продуктовым командам.",
+  en: "Frontend & Full-Stack Engineer — 7+ years in React, Next.js, TypeScript and Vue/Nuxt, with AI wired deep into the workflow. Based in Haifa, Israel — open to Frontend and Full-Stack roles.",
+  ru: "Frontend & Full-Stack разработчик — 7+ лет на React, Next.js, TypeScript и Vue/Nuxt, с глубоко вшитым в процесс ИИ. Живу в районе Хайфы — открыт к Frontend и Full-Stack ролям.",
 } as const;
 
 const avatar = "/avatar.jpeg";
@@ -44,7 +44,7 @@ const social = {
   telegram: "https://t.me/dtem4ik",
   instagram: "",
   facebook: "",
-  whatsapp: "",
+  whatsapp: "https://wa.me/972532881015",
 } as const;
 
 // Which pages exist on the site. Home is always on. Everything else is opt-in.
@@ -122,6 +122,9 @@ const skills = [
   "REST APIs",
   "GitLab CI/CD",
   "Design systems",
+  "Storybook",
+  "Jest",
+  "Playwright",
   "Claude Code",
   "MCP servers",
   "Multi-agent systems",
@@ -132,14 +135,14 @@ const skills = [
 const experience = [
   {
     company: "Galereya Novostroek",
-    period: "Oct 2024 — Present",
+    period: "Oct 2024 — Jul 2026",
     role: {
       en: "Frontend Engineer",
       ru: "Frontend-разработчик",
     },
     summary: {
-      en: "Lead frontend of internal web products on Nuxt 3 / Vue integrated with Bitrix24; built the client-facing WebView app, designed the architecture from scratch, and set up GitLab CI/CD (commit → production). Embedded AI tooling into team workflows and delivered an 8-lesson AI program for executive leadership.",
-      ru: "Веду фронтенд внутренних веб-продуктов на Nuxt 3 / Vue с интеграцией в Bitrix24; собрал клиентское WebView-приложение, спроектировал архитектуру с нуля и настроил GitLab CI/CD (коммит → прод). Внедрил AI-инструменты в процессы команды и провёл курс из 8 уроков по ИИ для топ-менеджмента.",
+      en: "Led frontend development of internal platforms for a real estate developer's sales organization (Nuxt 3, TypeScript). Built “Shakhmatka”, the company's core apartment inventory platform used daily by the entire sales department, with a bulk editor for complexes of up to 10,000 units — real-time saving, rendering optimized to stay fast at that scale. Automated call quality control with AI, migrated the company website to Nuxt 3, built a WebView app for buyers with online contract signing, set up GitLab CI/CD from scratch and ran an 8-lesson AI course for executives.",
+      ru: "Вёл фронтенд внутренних платформ отдела продаж девелопера (Nuxt 3, TypeScript). Сделал «Шахматку» — основную платформу квартир, которой каждый день пользуется весь отдел продаж, с массовым редактором ЖК до 10 000 квартир: сохранение в реальном времени и оптимизированный рендер. Автоматизировал контроль качества звонков через AI, перенёс сайт компании на Nuxt 3, сделал WebView-приложение для покупателей с онлайн-подписанием договоров, настроил GitLab CI/CD с нуля и провёл курс из 8 уроков по ИИ для руководства.",
     },
   },
   {
@@ -150,28 +153,28 @@ const experience = [
       ru: "Lead Frontend-разработчик (контракт)",
     },
     summary: {
-      en: "Sole frontend engineer on a B2B SaaS platform (React, Next.js, TypeScript, Tailwind). Shipped product features, built analytics and reporting pages with data visualizations, integrated Descope authentication, and owned frontend architecture and the release process.",
-      ru: "Единственный фронтенд-инженер на B2B SaaS-платформе (React, Next.js, TypeScript, Tailwind). Выпускал фичи, делал страницы аналитики и отчётности с визуализацией данных, интегрировал аутентификацию Descope, отвечал за архитектуру фронтенда и релизы.",
+      en: "Sole frontend engineer on an OSINT intelligence B2B SaaS platform (React, Next.js, TypeScript, Tailwind). Reworked the whole UI, replaced the entire authentication layer with Descope, built reporting pages and a Node.js report microservice, and owned frontend architecture and releases.",
+      ru: "Единственный фронтенд-инженер OSINT B2B SaaS-платформы (React, Next.js, TypeScript, Tailwind). Переработал весь UI, полностью заменил авторизацию на Descope, сделал страницы отчётов и микросервис отчётов на Node.js, отвечал за архитектуру фронтенда и релизы.",
     },
   },
   {
     company: "Ibec Systems",
-    period: "Nov 2019 — Jan 2025",
+    period: "Nov 2019 — Sep 2024",
     role: {
       en: "Frontend Engineer",
       ru: "Frontend-разработчик",
     },
     summary: {
-      en: "Grew from Junior to strong Middle over 5+ years, delivering frontend across marketing sites, banking and product platforms (Vue 3 / Nuxt 3, React / Next.js). Co-authored the internal nuxt3-ui-kit. Selected projects: BankRBK, Eurasia Life, Bigroup, Kino.kz.",
-      ru: "За 5+ лет вырос от Junior до крепкого Middle, делал фронтенд для промо-сайтов, банковских и продуктовых платформ (Vue 3 / Nuxt 3, React / Next.js). Соавтор внутренней библиотеки nuxt3-ui-kit. Проекты: BankRBK, Eurasia Life, Bigroup, Kino.kz.",
+      en: "Delivered 30+ projects, from landing pages to large internal systems, for banking, fintech, e-commerce and media clients (React / Next.js, Vue 3 / Nuxt 3). Kino.kz: large-scale redesign, Apple Pay checkout, Next.js performance. Also Bigroup, BankRBK, Eurasia Life. Co-authored the internal nuxt3-ui-kit.",
+      ru: "Сделал 30+ проектов — от лендингов до крупных внутренних систем — для банков, финтеха, e-commerce и медиа (React / Next.js, Vue 3 / Nuxt 3). Kino.kz: масштабный редизайн, оплата Apple Pay, оптимизация Next.js. Также Bigroup, BankRBK, Eurasia Life. Соавтор внутренней библиотеки nuxt3-ui-kit.",
     },
   },
   {
     company: "Aida Service",
     period: "Sep 2018 — Aug 2019",
     role: {
-      en: "Junior Full-Stack Developer",
-      ru: "Junior Full-Stack разработчик",
+      en: "Web Developer",
+      ru: "Веб-разработчик",
     },
     summary: {
       en: "First production role — built the aida.market site and internal SSR / SPA apps (Vue / Nuxt, Node.js). Also built two side projects: a car-wash automation system with real-time WebSockets and an accounting system for a car-parts store.",
@@ -183,6 +186,7 @@ const experience = [
 const contact = [
   { label: "GitHub", href: social.github },
   { label: "LinkedIn", href: social.linkedin },
+  { label: "WhatsApp", href: social.whatsapp },
   { label: "Telegram", href: social.telegram },
   { label: "Email", href: social.email ? `mailto:${social.email}` : "" },
 ] as const;
