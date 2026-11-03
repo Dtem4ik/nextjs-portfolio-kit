@@ -98,5 +98,11 @@
     "forks": "Forks",
     "commitsIndexed": "Commits indexed",
     "releases": "Releases"
+  },
+  "projectContent": {
+    "meniscus": {
+      "description": "A native Dynamic Island for MacBook: music, calendar events, a file shelf and quick Obsidian notes, right in the notch.",
+      "aiSummary": "Built with Swift 6 and SwiftUI, with Liquid Glass and event-driven macOS integrations. Supports notices and running tasks from scripts and Claude Code through a local CLI. Data stays on your Mac, with no telemetry. First public release: v0.1.0 for macOS 26 and later; available in English and Russian."
+    }
   }
 }
