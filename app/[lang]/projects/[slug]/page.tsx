@@ -22,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ lang: string; slug: string }>;
 }): Promise<Metadata> {
   const { lang, slug } = await params;
-  const data = await getPortfolioData();
+  const data = await getPortfolioData(lang);
   const project = data.projects.find((item) => item.slug === slug);
 
   const title = project ? project.name : "Project";

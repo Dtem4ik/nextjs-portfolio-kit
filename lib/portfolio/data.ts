@@ -1,4 +1,5 @@
 import "server-only";
+import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { portfolioConfig } from "@/portfolio.config";
 import { fetchGitHubProject, fallbackProjectFromConfig } from "@/lib/portfolio/github";
 import { readPortfolioSnapshot } from "@/lib/portfolio/supabase";
@@ -97,20 +98,37 @@ export async function buildFreshPortfolioData(): Promise<PortfolioData> {
  * 3. Config fallback data (always works, zero external calls)
  */
 export async function getPortfolioData(locale?: string): Promise<PortfolioData> {
+  const dict = await getDictionary(
+    locale && hasLocale(locale) ? locale : portfolioConfig.locale.default,
+  );
+  const localizeProjects = (projects: PortfolioProject[]) =>
+    projects.map((project) => {
+      const content = (
+        dict.projectContent as Record<string, { description: string; aiSummary: string }>
+      )[project.slug];
+      return content ? { ...project, ...content } : project;
+    });
   const snapshot = await readPortfolioSnapshot(locale);
   if (snapshot) {
+    // New config entries must appear before the next scheduled snapshot refresh.
+    const missingProjects = portfolioConfig.projects.filter(
+      (project) => !snapshot.projects.some((stored) => stored.slug === project.slug),
+    );
+    const addedProjects = await Promise.all(missingProjects.map(fetchGitHubProject));
+    const projects = [...snapshot.projects, ...addedProjects];
     // Use the stored activity feed (which includes AI-generated changelog items)
     // rather than recomputing raw commit activity from the projects.
     return {
-      projects: snapshot.projects,
+      projects: localizeProjects(projects),
       activity: snapshot.activity,
-      metrics: buildMetrics(snapshot.projects),
+      metrics: buildMetrics(projects),
       generatedAt: snapshot.generatedAt,
-      source: snapshot.source,
+      source: addedProjects.length ? "mixed" : snapshot.source,
     };
   }
 
-  return buildFreshPortfolioData();
+  const data = await buildFreshPortfolioData();
+  return { ...data, projects: localizeProjects(data.projects) };
 }
 
 export async function getProjectBySlug(slug: string) {

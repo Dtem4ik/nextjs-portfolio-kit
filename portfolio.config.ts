@@ -244,6 +244,21 @@ const projects: ProjectConfig[] = [
     aiSummary:
       "Multi-tenant SaaS for car-wash networks, built end to end: Next.js frontend, FastAPI backend, Playwright e2e tests.",
   },
+  {
+    repo: "meniscus",
+    slug: "meniscus",
+    name: "Meniscus",
+    stack: ["Swift 6", "SwiftUI", "AppKit", "EventKit", "CoreBluetooth", "IOKit"],
+    featured: false,
+    fallbackReleases: [
+      {
+        tagName: "v0.1.0",
+        name: "Meniscus 0.1.0",
+        publishedAt: "2026-11-03T18:29:36Z",
+        url: "https://github.com/Dtem4ik/meniscus/releases/tag/v0.1.0",
+      },
+    ],
+  },
 ];
 
 const keywords = {
